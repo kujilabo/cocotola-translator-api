@@ -10,4 +10,4 @@ test-mysql:
     MYSQL_USER: user
     MYSQL_PASSWORD: password
   ports:
-    - 3307:3306
+    - 3317:3306
