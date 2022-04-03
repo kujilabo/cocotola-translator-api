@@ -38,6 +38,7 @@ func (c *azureTranslationClient) DictionaryLookup(ctx context.Context, text stri
 		return nil, err
 	}
 	if result.Value == nil {
+		logger.Info("a")
 		return nil, nil
 	}
 
@@ -62,6 +63,7 @@ func (c *azureTranslationClient) DictionaryLookup(ctx context.Context, text stri
 			})
 		}
 	}
+	logger.Info("b")
 	return translations, nil
 }
 

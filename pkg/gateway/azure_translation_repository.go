@@ -111,6 +111,7 @@ func (r *azureTranslationRepository) FindByText(ctx context.Context, lang domain
 
 	return translations, nil
 }
+
 func (r *azureTranslationRepository) FindByFirstLetter(ctx context.Context, lang domain.Lang2, firstLetter string) ([]domain.Translation, error) {
 	if len(firstLetter) != 1 {
 		return nil, libD.ErrInvalidArgument

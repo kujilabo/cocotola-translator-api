@@ -3,6 +3,8 @@ package usecase
 import (
 	"context"
 	"errors"
+	"sort"
+	"strconv"
 	"time"
 
 	"golang.org/x/xerrors"
@@ -22,7 +24,7 @@ type userUsecase struct {
 	azureTranslationClient service.AzureTranslationClient
 }
 
-func NewUseUsecase(rf service.RepositoryFactory, azureTranslationClient service.AzureTranslationClient) (UserUsecase, error) {
+func NewUserUsecase(rf service.RepositoryFactory, azureTranslationClient service.AzureTranslationClient) (UserUsecase, error) {
 	return &userUsecase{
 		rf:                     rf,
 		azureTranslationClient: azureTranslationClient,
@@ -92,6 +94,10 @@ func (u *userUsecase) azureDictionaryLookup(ctx context.Context, fromLang, toLan
 		return nil, err
 	}
 
+	if len(azureResults) == 0 {
+		return azureResults, nil
+	}
+
 	if err := azureRepo.Add(ctx, toLang, text, azureResults); err != nil {
 		return nil, xerrors.Errorf("failed to add auzre_translation. err: %w", err)
 	}
@@ -105,9 +111,9 @@ func (u *userUsecase) DictionaryLookup(ctx context.Context, fromLang, toLang dom
 	if err != nil && !errors.Is(err, service.ErrTranslationNotFound) {
 		return nil, err
 	}
-	if !errors.Is(err, service.ErrTranslationNotFound) {
-		return customResults, err
-	}
+	// if !errors.Is(err, service.ErrTranslationNotFound) {
+	// 	return customResults, err
+	// }
 
 	// find translations from azure
 	azureResults, err := u.azureDictionaryLookup(ctx, fromLang, toLang, text)
@@ -118,14 +124,37 @@ func (u *userUsecase) DictionaryLookup(ctx context.Context, fromLang, toLang dom
 	if err != nil {
 		return nil, err
 	}
-	results := make([]domain.Translation, 0)
-	for _, v := range azureResultMap {
-		result, err := domain.NewTranslation(0, 0, time.Now(), time.Now(), text, v.Pos, fromLang, v.Target, "azure")
-		if err != nil {
-			return nil, err
-		}
-		results = append(results, result)
+	makeKey := func(text string, pos domain.WordPos) string {
+		return text + "_" + strconv.Itoa(int(pos))
 	}
+	resultMap := make(map[string]domain.Translation)
+
+	// insert customResults into resultMap
+	for _, c := range customResults {
+		key := makeKey(c.GetText(), c.GetPos())
+		resultMap[key] = c
+	}
+
+	// insert azureResultMap into resultMap
+	for _, a := range azureResultMap {
+		key := makeKey(text, a.Pos)
+		if _, ok := resultMap[key]; !ok {
+			result, err := domain.NewTranslation(1, time.Now(), time.Now(), text, a.Pos, fromLang, a.Target, "azure")
+			if err != nil {
+				return nil, err
+			}
+			resultMap[key] = result
+		}
+	}
+
+	// convert map to list
+	results := make([]domain.Translation, 0)
+	for _, v := range resultMap {
+		results = append(results, v)
+	}
+
+	sort.Slice(results, func(i, j int) bool { return results[i].GetPos() < results[j].GetPos() })
+
 	return results, nil
 }
 

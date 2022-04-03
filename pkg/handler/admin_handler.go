@@ -68,9 +68,9 @@ func (h *adminHandler) FindTranslationByTextAndPos(c *gin.Context) {
 	logger.Infof("FindTranslationByTextAndPos")
 
 	handlerhelper.HandleFunction(c, func() error {
-		text := ginhelper.GetString(c, "text")
+		text := ginhelper.GetStringFromPath(c, "text")
 
-		pos, err := ginhelper.GetInt(c, "pos")
+		pos, err := ginhelper.GetIntFromPath(c, "pos")
 		if err != nil {
 			return err
 		}
@@ -99,7 +99,7 @@ func (h *adminHandler) FindTranslationByText(c *gin.Context) {
 
 	handlerhelper.HandleFunction(c, func() error {
 
-		text := ginhelper.GetString(c, "text")
+		text := ginhelper.GetStringFromPath(c, "text")
 		results, err := h.adminUsecase.FindTranslationByText(ctx, domain.Lang2JA, text)
 		if err != nil {
 			return err
@@ -142,9 +142,9 @@ func (h *adminHandler) UpdateTranslation(c *gin.Context) {
 	ctx := c.Request.Context()
 
 	handlerhelper.HandleFunction(c, func() error {
-		text := ginhelper.GetString(c, "text")
+		text := ginhelper.GetStringFromPath(c, "text")
 
-		pos, err := ginhelper.GetInt(c, "pos")
+		pos, err := ginhelper.GetIntFromPath(c, "pos")
 		if err != nil {
 			return err
 		}
@@ -176,9 +176,9 @@ func (h *adminHandler) RemoveTranslation(c *gin.Context) {
 	ctx := c.Request.Context()
 
 	handlerhelper.HandleFunction(c, func() error {
-		text := ginhelper.GetString(c, "text")
+		text := ginhelper.GetStringFromPath(c, "text")
 
-		pos, err := ginhelper.GetInt(c, "pos")
+		pos, err := ginhelper.GetIntFromPath(c, "pos")
 		if err != nil {
 			return err
 		}

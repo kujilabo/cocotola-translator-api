@@ -75,7 +75,7 @@ func (p *translationUpdateParameter) GetTranslated() string {
 }
 
 type CustomTranslationRepository interface {
-	Add(ctx context.Context, param TranslationAddParameter) (domain.TranslationID, error)
+	Add(ctx context.Context, param TranslationAddParameter) error
 
 	Update(ctx context.Context, lang domain.Lang2, text string, pos domain.WordPos, param TranslationUpdateParameter) error
 

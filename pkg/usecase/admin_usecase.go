@@ -135,6 +135,7 @@ func (u *adminUsecase) FindTranslationByText(ctx context.Context, lang domain.La
 		}
 	}
 
+	// convert map to list
 	results := make([]domain.Translation, 0)
 	for _, v := range resultMap {
 		results = append(results, v)
@@ -151,7 +152,7 @@ func (u *adminUsecase) AddTranslation(ctx context.Context, param service.Transla
 		return err
 	}
 
-	if _, err := customRepo.Add(ctx, param); err != nil {
+	if err := customRepo.Add(ctx, param); err != nil {
 		return err
 	}
 	return nil
@@ -183,7 +184,7 @@ func (u *adminUsecase) UpdateTranslation(ctx context.Context, lang domain.Lang2,
 	if err != nil {
 		return err
 	}
-	if _, err := customRepo.Add(ctx, paramToAdd); err != nil {
+	if err := customRepo.Add(ctx, paramToAdd); err != nil {
 		return err
 	}
 	return nil
