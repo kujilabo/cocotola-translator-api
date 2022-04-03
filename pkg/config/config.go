@@ -63,7 +63,6 @@ type DebugConfig struct {
 }
 
 type Config struct {
-	App      *AppConfig      `yaml:"app" validate:"required"`
 	DB       *DBConfig       `yaml:"db" validate:"required"`
 	Auth     *AuthConfig     `yaml:"auth" validate:"required"`
 	Azure    *AzureConfig    `yaml:"azure" validate:"required"`
