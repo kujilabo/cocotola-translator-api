@@ -7,7 +7,7 @@ create table `custom_translation` (
 ,`pos` int not null
 ,`lang` varchar(2) character set ascii not null
 ,`translated` varchar(100) not null
-,`disabled` tinyint(1) not null
+,`disabled` tinyint(1) not null default 0
 -- ,primary key('id')
 -- ,unique(`text`, `pos`, `lang`)
 ,primary key(`text`, `pos`, `lang`)
