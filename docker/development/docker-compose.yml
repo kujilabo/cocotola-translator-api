@@ -1,5 +1,5 @@
 ---
-dev-mysql:
+dev-translator-mysql:
   image: mysql:8.0.27
   container_name: dev-translator-mysql
   command: mysqld --character-set-server=utf8mb4
@@ -11,3 +11,5 @@ dev-mysql:
     MYSQL_PASSWORD: password
   ports:
     - 3316:3306
+  volumes:
+    - "./mysql-data:/var/lib/mysql"

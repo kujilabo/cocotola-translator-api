@@ -6,10 +6,10 @@ import (
 	lib "github.com/kujilabo/cocotola-translator-api/pkg_lib/domain"
 )
 
-type TranslationID uint
+// type TranslationID uint
 
 type Translation interface {
-	GetID() TranslationID
+	// GetID() TranslationID
 	GetVersion() int
 	GetCreatedAt() time.Time
 	GetUpdatedAt() time.Time
@@ -21,8 +21,8 @@ type Translation interface {
 }
 
 type translation struct {
-	ID         TranslationID `validate:"gte=0"`
-	Version    int           `validate:"required,gte=1"`
+	// ID         TranslationID `validate:"gte=0"`
+	Version    int `validate:"required,gte=1"`
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
 	Text       string `validate:"required"`
@@ -32,9 +32,11 @@ type translation struct {
 	Provider   string
 }
 
-func NewTranslation(id TranslationID, version int, createdAt time.Time, updatedAt time.Time, text string, pos WordPos, lang Lang2, translated, provider string) (Translation, error) {
+func NewTranslation(
+	// id TranslationID,
+	version int, createdAt time.Time, updatedAt time.Time, text string, pos WordPos, lang Lang2, translated, provider string) (Translation, error) {
 	m := &translation{
-		ID:         id,
+		// ID:         id,
 		Version:    version,
 		CreatedAt:  createdAt,
 		UpdatedAt:  updatedAt,
@@ -48,9 +50,9 @@ func NewTranslation(id TranslationID, version int, createdAt time.Time, updatedA
 	return m, lib.Validator.Struct(m)
 }
 
-func (t *translation) GetID() TranslationID {
-	return t.ID
-}
+// func (t *translation) GetID() TranslationID {
+// 	return t.ID
+// }
 
 func (t *translation) GetVersion() int {
 	return t.Version

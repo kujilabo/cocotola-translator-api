@@ -77,7 +77,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	userUsecase, err := usecase.NewUseUsecase(rf, azureTranslationClient)
+	userUsecase, err := usecase.NewUserUsecase(rf, azureTranslationClient)
 	if err != nil {
 		panic(err)
 	}
@@ -92,9 +92,9 @@ func main() {
 		{
 			admin := v1.Group("admin")
 			adminHandler := handler.NewAdminHandler(adminUsecase)
-			admin.POST("find", adminHandler.FindTranslations)
+			admin.POST("find", adminHandler.FindTranslationsByFirstLetter)
 			admin.GET("text/:text/pos/:pos", adminHandler.FindTranslationByTextAndPos)
-			admin.GET("text/:text", adminHandler.FindTranslationByText)
+			admin.GET("text/:text", adminHandler.FindTranslationsByText)
 			admin.PUT("text/:text/pos/:pos", adminHandler.UpdateTranslation)
 			admin.DELETE("text/:text/pos/:pos", adminHandler.RemoveTranslation)
 			admin.POST("", adminHandler.AddTranslation)
@@ -103,7 +103,7 @@ func main() {
 		{
 			admin := v1.Group("user")
 			userHandler := handler.NewUserHandler(userUsecase)
-			admin.POST("dictionary/lookup", userHandler.DictionaryLookup)
+			admin.GET("dictionary/lookup", userHandler.DictionaryLookup)
 		}
 	}
 
@@ -118,7 +118,7 @@ func main() {
 	gracefulShutdownTime1 := time.Duration(cfg.Shutdown.TimeSec1) * time.Second
 	gracefulShutdownTime2 := time.Duration(cfg.Shutdown.TimeSec2) * time.Second
 	server := http.Server{
-		Addr:    ":8080",
+		Addr:    ":8180",
 		Handler: router,
 	}
 

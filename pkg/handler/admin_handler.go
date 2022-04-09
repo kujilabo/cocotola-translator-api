@@ -18,9 +18,9 @@ import (
 )
 
 type AdminHandler interface {
-	FindTranslations(c *gin.Context)
+	FindTranslationsByFirstLetter(c *gin.Context)
 	FindTranslationByTextAndPos(c *gin.Context)
-	FindTranslationByText(c *gin.Context)
+	FindTranslationsByText(c *gin.Context)
 	AddTranslation(c *gin.Context)
 	UpdateTranslation(c *gin.Context)
 	RemoveTranslation(c *gin.Context)
@@ -35,7 +35,7 @@ func NewAdminHandler(adminUsecase usecase.AdminUsecase) AdminHandler {
 	return &adminHandler{adminUsecase: adminUsecase}
 }
 
-func (h *adminHandler) FindTranslations(c *gin.Context) {
+func (h *adminHandler) FindTranslationsByFirstLetter(c *gin.Context) {
 	ctx := c.Request.Context()
 	logger := log.FromContext(ctx)
 	logger.Infof("FindTranslations")
@@ -68,9 +68,9 @@ func (h *adminHandler) FindTranslationByTextAndPos(c *gin.Context) {
 	logger.Infof("FindTranslationByTextAndPos")
 
 	handlerhelper.HandleFunction(c, func() error {
-		text := ginhelper.GetString(c, "text")
+		text := ginhelper.GetStringFromPath(c, "text")
 
-		pos, err := ginhelper.GetInt(c, "pos")
+		pos, err := ginhelper.GetIntFromPath(c, "pos")
 		if err != nil {
 			return err
 		}
@@ -94,18 +94,18 @@ func (h *adminHandler) FindTranslationByTextAndPos(c *gin.Context) {
 	}, h.errorHandle)
 }
 
-func (h *adminHandler) FindTranslationByText(c *gin.Context) {
+func (h *adminHandler) FindTranslationsByText(c *gin.Context) {
 	ctx := c.Request.Context()
 
 	handlerhelper.HandleFunction(c, func() error {
 
-		text := ginhelper.GetString(c, "text")
+		text := ginhelper.GetStringFromPath(c, "text")
 		results, err := h.adminUsecase.FindTranslationByText(ctx, domain.Lang2JA, text)
 		if err != nil {
 			return err
 		}
 
-		response, err := converter.ToTranslationListResposne(ctx, results)
+		response, err := converter.ToTranslationFindResposne(ctx, results)
 		if err != nil {
 			return err
 		}
@@ -142,9 +142,9 @@ func (h *adminHandler) UpdateTranslation(c *gin.Context) {
 	ctx := c.Request.Context()
 
 	handlerhelper.HandleFunction(c, func() error {
-		text := ginhelper.GetString(c, "text")
+		text := ginhelper.GetStringFromPath(c, "text")
 
-		pos, err := ginhelper.GetInt(c, "pos")
+		pos, err := ginhelper.GetIntFromPath(c, "pos")
 		if err != nil {
 			return err
 		}
@@ -176,9 +176,9 @@ func (h *adminHandler) RemoveTranslation(c *gin.Context) {
 	ctx := c.Request.Context()
 
 	handlerhelper.HandleFunction(c, func() error {
-		text := ginhelper.GetString(c, "text")
+		text := ginhelper.GetStringFromPath(c, "text")
 
-		pos, err := ginhelper.GetInt(c, "pos")
+		pos, err := ginhelper.GetIntFromPath(c, "pos")
 		if err != nil {
 			return err
 		}

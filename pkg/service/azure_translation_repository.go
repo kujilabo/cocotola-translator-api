@@ -17,7 +17,7 @@ type AzureTranslation struct {
 }
 
 func (t *AzureTranslation) ToTranslation(lang domain.Lang2, text string) (domain.Translation, error) {
-	return domain.NewTranslation(0, 1, time.Now(), time.Now(), text, t.Pos, lang, t.Target, "azure")
+	return domain.NewTranslation(1, time.Now(), time.Now(), text, t.Pos, lang, t.Target, "azure")
 }
 
 type TranslationSearchCondition struct {

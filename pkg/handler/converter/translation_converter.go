@@ -36,20 +36,20 @@ func ToTranslationResposne(context context.Context, translation domain.Translati
 	}, nil
 }
 
-func ToTranslationListResposne(context context.Context, translations []domain.Translation) ([]*entity.Translation, error) {
-	results := make([]*entity.Translation, 0)
-	for _, t := range translations {
-		e := &entity.Translation{
-			Lang:       t.GetLang().String(),
-			Text:       t.GetText(),
-			Pos:        int(t.GetPos()),
-			Translated: t.GetTranslated(),
-			Provider:   t.GetProvider(),
-		}
-		results = append(results, e)
-	}
-	return results, nil
-}
+// func ToTranslationListResposne(context context.Context, translations []domain.Translation) ([]*entity.Translation, error) {
+// 	results := make([]*entity.Translation, 0)
+// 	for _, t := range translations {
+// 		e := &entity.Translation{
+// 			Lang:       t.GetLang().String(),
+// 			Text:       t.GetText(),
+// 			Pos:        int(t.GetPos()),
+// 			Translated: t.GetTranslated(),
+// 			Provider:   t.GetProvider(),
+// 		}
+// 		results = append(results, e)
+// 	}
+// 	return results, nil
+// }
 
 func ToTranslationAddParameter(ctx context.Context, param *entity.TranslationAddParameter) (service.TranslationAddParameter, error) {
 	pos, err := domain.NewWordPos(param.Pos)

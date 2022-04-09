@@ -12,11 +12,6 @@ import (
 	lib "github.com/kujilabo/cocotola-translator-api/pkg_lib/domain"
 )
 
-type AppConfig struct {
-	OwnerPassword string `yaml:"ownerPassword" validate:"required"`
-	TestUserEmail string `yaml:"testUserEmail" validate:"required"`
-}
-
 type SQLite3Config struct {
 	File string `yaml:"file" validate:"required"`
 }

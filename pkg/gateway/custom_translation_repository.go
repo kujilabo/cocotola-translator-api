@@ -21,7 +21,6 @@ type customTranslationRepository struct {
 }
 
 type customTranslationEntity struct {
-	ID         uint
 	Version    int
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
@@ -41,7 +40,7 @@ func (e *customTranslationEntity) toModel() (domain.Translation, error) {
 		return nil, err
 	}
 
-	t, err := domain.NewTranslation(domain.TranslationID(e.ID), e.Version, e.CreatedAt, e.UpdatedAt, e.Text, domain.WordPos(e.Pos), lang, e.Translated, "custom")
+	t, err := domain.NewTranslation(e.Version, e.CreatedAt, e.UpdatedAt, e.Text, domain.WordPos(e.Pos), lang, e.Translated, "custom")
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +53,7 @@ func NewCustomTranslationRepository(db *gorm.DB) service.CustomTranslationReposi
 	}
 }
 
-func (r *customTranslationRepository) Add(ctx context.Context, param service.TranslationAddParameter) (domain.TranslationID, error) {
+func (r *customTranslationRepository) Add(ctx context.Context, param service.TranslationAddParameter) error {
 	entity := customTranslationEntity{
 		Version:    1,
 		Text:       param.GetText(),
@@ -65,10 +64,10 @@ func (r *customTranslationRepository) Add(ctx context.Context, param service.Tra
 
 	if result := r.db.Create(&entity); result.Error != nil {
 		err := libG.ConvertDuplicatedError(result.Error, service.ErrTranslationAlreadyExists)
-		return 0, xerrors.Errorf("failed to Add translation. err: %w", err)
+		return xerrors.Errorf("failed to Add translation. err: %w", err)
 	}
 
-	return domain.TranslationID(entity.ID), nil
+	return nil
 }
 
 func (r *customTranslationRepository) Update(ctx context.Context, lang domain.Lang2, text string, pos domain.WordPos, param service.TranslationUpdateParameter) error {
