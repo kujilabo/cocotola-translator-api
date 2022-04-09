@@ -92,9 +92,9 @@ func main() {
 		{
 			admin := v1.Group("admin")
 			adminHandler := handler.NewAdminHandler(adminUsecase)
-			admin.POST("find", adminHandler.FindTranslations)
+			admin.POST("find", adminHandler.FindTranslationsByFirstLetter)
 			admin.GET("text/:text/pos/:pos", adminHandler.FindTranslationByTextAndPos)
-			admin.GET("text/:text", adminHandler.FindTranslationByText)
+			admin.GET("text/:text", adminHandler.FindTranslationsByText)
 			admin.PUT("text/:text/pos/:pos", adminHandler.UpdateTranslation)
 			admin.DELETE("text/:text/pos/:pos", adminHandler.RemoveTranslation)
 			admin.POST("", adminHandler.AddTranslation)

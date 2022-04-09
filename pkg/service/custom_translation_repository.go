@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"errors"
 
 	"github.com/kujilabo/cocotola-translator-api/pkg/domain"
 	lib "github.com/kujilabo/cocotola-translator-api/pkg_lib/domain"
@@ -10,8 +9,6 @@ import (
 
 // var ErrCustomTranslationNotFound = errors.New("azure translation not found")
 // var ErrCustomTranslationAlreadyExists = errors.New("azure translation already exists")
-
-var ErrTranslationAlreadyExists = errors.New("custsomtranslation already exists")
 
 type TranslationAddParameter interface {
 	GetText() string
