@@ -29,8 +29,8 @@ type adminUsecase struct {
 	rf service.RepositoryFactory
 }
 
-func NewAdminUsecase(rf service.RepositoryFactory) (AdminUsecase, error) {
-	return &adminUsecase{rf: rf}, nil
+func NewAdminUsecase(rf service.RepositoryFactory) AdminUsecase {
+	return &adminUsecase{rf: rf}
 }
 
 func (u *adminUsecase) FindTranslationsByFirstLetter(ctx context.Context, lang domain.Lang2, firstLetter string) ([]domain.Translation, error) {

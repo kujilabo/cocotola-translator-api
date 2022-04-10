@@ -1,4 +1,151 @@
+definitions:
+  entity.Translation:
+    properties:
+      lang:
+        type: string
+      pos:
+        type: integer
+      provider:
+        type: string
+      text:
+        type: string
+      translated:
+        type: string
+    type: object
+  entity.TranslationFindParameter:
+    properties:
+      letter:
+        type: string
+    type: object
+  entity.TranslationFindResponse:
+    properties:
+      results:
+        items:
+          $ref: '#/definitions/entity.Translation'
+        type: array
+    type: object
 info:
   contact: {}
-paths: {}
+paths:
+  /v1/admin/find:
+    post:
+      consumes:
+      - application/json
+      description: find translations with first letter
+      parameters:
+      - description: parameter to find translations
+        in: body
+        name: param
+        required: true
+        schema:
+          $ref: '#/definitions/entity.TranslationFindParameter'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.TranslationFindResponse'
+        "400":
+          description: ""
+        "401":
+          description: ""
+      security:
+      - BasicAuth: []
+      summary: find translations with first letter
+      tags:
+      - translator
+  /v1/admin/text/{text}:
+    get:
+      consumes:
+      - application/json
+      description: find translations with text
+      parameters:
+      - description: text
+        in: path
+        name: text
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.Translation'
+        "400":
+          description: ""
+        "401":
+          description: ""
+      security:
+      - BasicAuth: []
+      summary: find translations with text
+      tags:
+      - translator
+  /v1/admin/text/{text}/pos/{pos}:
+    get:
+      consumes:
+      - application/json
+      description: find translations with text and pos
+      parameters:
+      - description: text
+        in: path
+        name: text
+        required: true
+        type: string
+      - description: pos
+        in: path
+        name: pos
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.Translation'
+        "400":
+          description: ""
+        "401":
+          description: ""
+      security:
+      - BasicAuth: []
+      summary: find translations with text and pos
+      tags:
+      - translator
+  /v1/user/dictionary/lookup:
+    get:
+      consumes:
+      - application/json
+      description: dictionary lookup
+      parameters:
+      - description: text
+        in: query
+        name: text
+        required: true
+        type: string
+      - description: pos
+        in: query
+        name: pos
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.Translation'
+        "400":
+          description: ""
+        "401":
+          description: ""
+      security:
+      - BasicAuth: []
+      summary: dictionary lookup
+      tags:
+      - translator
+securityDefinitions:
+  BasicAuth:
+    type: basic
 swagger: "2.0"

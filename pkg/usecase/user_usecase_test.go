@@ -21,8 +21,7 @@ func test_userUsecase_DictionaryLookup_init(t *testing.T, ctx context.Context) (
 	rf.On("NewAzureTranslationRepository", ctx).Return(azureTranslationRepo, nil)
 	rf.On("NewCustomTranslationRepository", ctx).Return(customTranslationRepo, nil)
 	azureTranslationClient := new(service_mock.AzureTranslationClientMock)
-	userUsecase, err := usecase.NewUserUsecase(rf, azureTranslationClient)
-	assert.NoError(t, err)
+	userUsecase := usecase.NewUserUsecase(rf, azureTranslationClient)
 
 	return azureTranslationClient, azureTranslationRepo, customTranslationRepo, userUsecase
 }
