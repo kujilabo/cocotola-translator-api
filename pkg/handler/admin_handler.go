@@ -35,6 +35,18 @@ func NewAdminHandler(adminUsecase usecase.AdminUsecase) AdminHandler {
 	return &adminHandler{adminUsecase: adminUsecase}
 }
 
+// FindTranslationsByFirstLetter godoc
+// @Summary     find translations with first letter
+// @Description find translations with first letter
+// @Tags        translator
+// @Accept      json
+// @Produce     json
+// @Param       param body entity.TranslationFindParameter true "parameter to find translations"
+// @Success     200 {object} entity.TranslationFindResponse
+// @Failure     400
+// @Failure     401
+// @Router      /v1/admin/find [post]
+// @Security    BasicAuth
 func (h *adminHandler) FindTranslationsByFirstLetter(c *gin.Context) {
 	ctx := c.Request.Context()
 	logger := log.FromContext(ctx)
@@ -62,6 +74,19 @@ func (h *adminHandler) FindTranslationsByFirstLetter(c *gin.Context) {
 	}, h.errorHandle)
 }
 
+// FindTranslationByTextAndPos godoc
+// @Summary     find translations with text and pos
+// @Description find translations with text and pos
+// @Tags        translator
+// @Accept      json
+// @Produce     json
+// @Param       text path string true "text"
+// @Param       pos path int true "pos"
+// @Success     200 {object} entity.Translation
+// @Failure     400
+// @Failure     401
+// @Router      /v1/admin/text/{text}/pos/{pos} [get]
+// @Security    BasicAuth
 func (h *adminHandler) FindTranslationByTextAndPos(c *gin.Context) {
 	ctx := c.Request.Context()
 	logger := log.FromContext(ctx)
@@ -94,11 +119,22 @@ func (h *adminHandler) FindTranslationByTextAndPos(c *gin.Context) {
 	}, h.errorHandle)
 }
 
+// FindTranslationsByText godoc
+// @Summary     find translations with text
+// @Description find translations with text
+// @Tags        translator
+// @Accept      json
+// @Produce     json
+// @Param       text path string true "text"
+// @Success     200 {object} entity.Translation
+// @Failure     400
+// @Failure     401
+// @Router      /v1/admin/text/{text} [get]
+// @Security    BasicAuth
 func (h *adminHandler) FindTranslationsByText(c *gin.Context) {
 	ctx := c.Request.Context()
 
 	handlerhelper.HandleFunction(c, func() error {
-
 		text := ginhelper.GetStringFromPath(c, "text")
 		results, err := h.adminUsecase.FindTranslationByText(ctx, domain.Lang2JA, text)
 		if err != nil {

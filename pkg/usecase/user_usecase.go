@@ -24,11 +24,11 @@ type userUsecase struct {
 	azureTranslationClient service.AzureTranslationClient
 }
 
-func NewUserUsecase(rf service.RepositoryFactory, azureTranslationClient service.AzureTranslationClient) (UserUsecase, error) {
+func NewUserUsecase(rf service.RepositoryFactory, azureTranslationClient service.AzureTranslationClient) UserUsecase {
 	return &userUsecase{
 		rf:                     rf,
 		azureTranslationClient: azureTranslationClient,
-	}, nil
+	}
 }
 
 func (u *userUsecase) selectMaxConfidenceTranslations(ctx context.Context, in []service.AzureTranslation) (map[domain.WordPos]service.AzureTranslation, error) {

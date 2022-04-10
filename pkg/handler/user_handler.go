@@ -27,11 +27,29 @@ func NewUserHandler(userUsecase usecase.UserUsecase) UserHandler {
 	return &userHandler{userUsecase: userUsecase}
 }
 
+// DictionaryLookup godoc
+// @Summary     dictionary lookup
+// @Description dictionary lookup
+// @Tags        translator
+// @Accept      json
+// @Produce     json
+// @Param       text query string true "text"
+// @Param       pos query int false "pos"
+// @Success     200 {object} entity.Translation
+// @Failure     400
+// @Failure     401
+// @Router      /v1/user/dictionary/lookup [get]
+// @Security    BasicAuth
 func (h *userHandler) DictionaryLookup(c *gin.Context) {
 	ctx := c.Request.Context()
 	logger := log.FromContext(ctx)
 	handlerhelper.HandleFunction(c, func() error {
 		text := ginhelper.GetStringFromQuery(c, "text")
+		if len(text) <= 1 {
+			c.Status(http.StatusBadRequest)
+			return nil
+		}
+
 		posS := ginhelper.GetStringFromQuery(c, "pos")
 		if len(posS) == 0 {
 			results, err := h.userUsecase.DictionaryLookup(ctx, domain.Lang2EN, domain.Lang2JA, text)

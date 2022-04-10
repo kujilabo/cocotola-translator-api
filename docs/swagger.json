@@ -3,5 +3,239 @@
     "info": {
         "contact": {}
     },
-    "paths": {}
+    "paths": {
+        "/v1/admin/find": {
+            "post": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "find translations with first letter",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "translator"
+                ],
+                "summary": "find translations with first letter",
+                "parameters": [
+                    {
+                        "description": "parameter to find translations",
+                        "name": "param",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entity.TranslationFindParameter"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/entity.TranslationFindResponse"
+                        }
+                    },
+                    "400": {
+                        "description": ""
+                    },
+                    "401": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/v1/admin/text/{text}": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "find translations with text",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "translator"
+                ],
+                "summary": "find translations with text",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "text",
+                        "name": "text",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/entity.Translation"
+                        }
+                    },
+                    "400": {
+                        "description": ""
+                    },
+                    "401": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/v1/admin/text/{text}/pos/{pos}": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "find translations with text and pos",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "translator"
+                ],
+                "summary": "find translations with text and pos",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "text",
+                        "name": "text",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "pos",
+                        "name": "pos",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/entity.Translation"
+                        }
+                    },
+                    "400": {
+                        "description": ""
+                    },
+                    "401": {
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/v1/user/dictionary/lookup": {
+            "get": {
+                "security": [
+                    {
+                        "BasicAuth": []
+                    }
+                ],
+                "description": "dictionary lookup",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "translator"
+                ],
+                "summary": "dictionary lookup",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "text",
+                        "name": "text",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "pos",
+                        "name": "pos",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/entity.Translation"
+                        }
+                    },
+                    "400": {
+                        "description": ""
+                    },
+                    "401": {
+                        "description": ""
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "entity.Translation": {
+            "type": "object",
+            "properties": {
+                "lang": {
+                    "type": "string"
+                },
+                "pos": {
+                    "type": "integer"
+                },
+                "provider": {
+                    "type": "string"
+                },
+                "text": {
+                    "type": "string"
+                },
+                "translated": {
+                    "type": "string"
+                }
+            }
+        },
+        "entity.TranslationFindParameter": {
+            "type": "object",
+            "properties": {
+                "letter": {
+                    "type": "string"
+                }
+            }
+        },
+        "entity.TranslationFindResponse": {
+            "type": "object",
+            "properties": {
+                "results": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.Translation"
+                    }
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "BasicAuth": {
+            "type": "basic"
+        }
+    }
 }

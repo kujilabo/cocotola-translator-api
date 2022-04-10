@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 	"time"
 
@@ -30,6 +31,7 @@ import (
 	"github.com/kujilabo/cocotola-translator-api/pkg_lib/handler/middleware"
 )
 
+// @securityDefinitions.basic BasicAuth
 func main() {
 	sigs := make(chan os.Signal, 1)
 	done := make(chan bool, 1)
@@ -73,14 +75,8 @@ func main() {
 		panic(err)
 	}
 
-	adminUsecase, err := usecase.NewAdminUsecase(rf)
-	if err != nil {
-		panic(err)
-	}
-	userUsecase, err := usecase.NewUserUsecase(rf, azureTranslationClient)
-	if err != nil {
-		panic(err)
-	}
+	adminUsecase := usecase.NewAdminUsecase(rf)
+	userUsecase := usecase.NewUserUsecase(rf, azureTranslationClient)
 
 	router.GET("/healthcheck", func(c *gin.Context) {
 		c.Status(http.StatusOK)
@@ -111,14 +107,13 @@ func main() {
 	docs.SwaggerInfo.Title = "Swagger Example API"
 	docs.SwaggerInfo.Description = "This is a sample server Petstore server."
 	docs.SwaggerInfo.Version = "1.0"
-	docs.SwaggerInfo.Host = "cocotola.com"
-	docs.SwaggerInfo.BasePath = "/v1"
-	docs.SwaggerInfo.Schemes = []string{"https"}
+	docs.SwaggerInfo.Host = cfg.Swagger.Host
+	docs.SwaggerInfo.Schemes = []string{cfg.Swagger.Schema}
 
 	gracefulShutdownTime1 := time.Duration(cfg.Shutdown.TimeSec1) * time.Second
 	gracefulShutdownTime2 := time.Duration(cfg.Shutdown.TimeSec2) * time.Second
 	server := http.Server{
-		Addr:    ":8180",
+		Addr:    ":" + strconv.Itoa(cfg.App.Port),
 		Handler: router,
 	}
 
