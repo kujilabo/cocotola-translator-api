@@ -89,6 +89,11 @@ steps:
   - name: "gcr.io/cloud-builders/git"
     dir: "kujilabo-manifests"
     args:
+      - diff
+
+  - name: "gcr.io/cloud-builders/git"
+    dir: "kujilabo-manifests"
+    args:
       - add
       - .
 
