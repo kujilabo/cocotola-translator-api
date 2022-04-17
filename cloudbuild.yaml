@@ -5,17 +5,17 @@ steps:
     args: ["build", "-t", "gcr.io/$PROJECT_ID/cocotola-translator-api:$SHORT_SHA", "."]
 
   - name: "gcr.io/cloud-builders/docker"
-    id: "docker push"
+    id: "docker tag"
     args:
       - "tag"
       - "gcr.io/$PROJECT_ID/cocotola-translator-api:$SHORT_SHA"
-      - "latest"
+      - "gcr.io/$PROJECT_ID/cocotola-translator-api:latest"
 
   - name: "gcr.io/cloud-builders/docker"
-    id: "docker tag"
+    id: "docker push"
     args:
       - "push"
-      - "gcr.io/$PROJECT_ID/cocotola-translator-api:latest"
+      - "gcr.io/$PROJECT_ID/cocotola-translator-api:$SHORT_SHA"
 
   - name: "gcr.io/cloud-builders/git"
     secretEnv: ["SSH_KEY"]
