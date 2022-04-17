@@ -29,8 +29,6 @@ import (
 	"github.com/kujilabo/cocotola-translator-api/pkg/gateway"
 	"github.com/kujilabo/cocotola-translator-api/pkg/handler"
 	"github.com/kujilabo/cocotola-translator-api/pkg/usecase"
-	libD "github.com/kujilabo/cocotola-translator-api/pkg_lib/domain"
-	libG "github.com/kujilabo/cocotola-translator-api/pkg_lib/gateway"
 	"github.com/kujilabo/cocotola-translator-api/pkg_lib/handler/middleware"
 )
 
@@ -168,9 +166,13 @@ func initialize(ctx context.Context, env string) (*config.Config, *gorm.DB, *sql
 	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
 
 	// init db
-	db, sqlDB, err := initDB(cfg.DB)
+	db, sqlDB, err := config.InitDB(cfg.DB)
 	if err != nil {
 		return nil, nil, nil, nil, nil, xerrors.Errorf("failed to InitDB. err: %w", err)
+	}
+
+	if !cfg.Debug.GinMode {
+		gin.SetMode(gin.ReleaseMode)
 	}
 
 	router := gin.New()
@@ -180,8 +182,6 @@ func initialize(ctx context.Context, env string) (*config.Config, *gorm.DB, *sql
 
 	if cfg.Debug.GinMode {
 		router.Use(ginlog.Middleware(ginlog.DefaultConfig))
-	} else {
-		gin.SetMode(gin.ReleaseMode)
 	}
 
 	if cfg.Debug.Wait {
@@ -189,51 +189,4 @@ func initialize(ctx context.Context, env string) (*config.Config, *gorm.DB, *sql
 	}
 
 	return cfg, db, sqlDB, router, tp, nil
-}
-
-func initDB(cfg *config.DBConfig) (*gorm.DB, *sql.DB, error) {
-	switch cfg.DriverName {
-	case "sqlite3":
-		db, err := libG.OpenSQLite("./" + cfg.SQLite3.File)
-		if err != nil {
-			return nil, nil, err
-		}
-
-		sqlDB, err := db.DB()
-		if err != nil {
-			return nil, nil, err
-		}
-
-		if err := sqlDB.Ping(); err != nil {
-			return nil, nil, err
-		}
-
-		if err := libG.MigrateSQLiteDB(db); err != nil {
-			return nil, nil, err
-		}
-
-		return db, sqlDB, nil
-	case "mysql":
-		db, err := libG.OpenMySQL(cfg.MySQL.Username, cfg.MySQL.Password, cfg.MySQL.Host, cfg.MySQL.Port, cfg.MySQL.Database)
-		if err != nil {
-			return nil, nil, err
-		}
-
-		sqlDB, err := db.DB()
-		if err != nil {
-			return nil, nil, err
-		}
-
-		if err := sqlDB.Ping(); err != nil {
-			return nil, nil, err
-		}
-
-		if err := libG.MigrateMySQLDB(db); err != nil {
-			return nil, nil, xerrors.Errorf("failed to MigrateMySQLDB. err: %w", err)
-		}
-
-		return db, sqlDB, nil
-	default:
-		return nil, nil, libD.ErrInvalidArgument
-	}
 }
