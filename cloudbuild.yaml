@@ -9,7 +9,7 @@ steps:
     args:
       - "tag"
       - "gcr.io/$PROJECT_ID/cocotola-translator-api:$SHORT_SHA"
-      - "latest"
+      - "gcr.io/$PROJECT_ID/cocotola-translator-api:latest"
 
   - name: "gcr.io/cloud-builders/docker"
     id: "docker push"
