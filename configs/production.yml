@@ -1,7 +1,11 @@
 ---
 app:
+  name: cocotola-translator-api
   port: 8080
 db:
+  # driverName: sqlite3
+  # sqlite3:
+  #   file: app.db
   driverName: mysql
   mysql:
     username: $MYSQL_USERNAME
@@ -14,6 +18,8 @@ auth:
   password: $AUTH_PASSWORD
 azure:
   subscriptionKey: $SUBSCRIPTION_KEY
+trace:
+  exporter: gcp
 cors:
   allowOrigins:
     - "https://www.cocotola.com"
@@ -22,9 +28,9 @@ shutdown:
   timeSec2: 10
 log:
   level: debug
-debug:
-  ginMode: false
-  wait: false
 swagger:
   host: cocotola.com
   schema: https
+debug:
+  ginMode: false
+  wait: false

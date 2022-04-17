@@ -13,7 +13,8 @@ import (
 )
 
 type AppConfig struct {
-	Port int `yaml:"port" validate:"required"`
+	Name string `yaml:"name" validate:"required"`
+	Port int    `yaml:"port" validate:"required"`
 }
 
 type SQLite3Config struct {
@@ -43,6 +44,15 @@ type AzureConfig struct {
 	SubscriptionKey string `yaml:"subscriptionKey" validate:"required"`
 }
 
+type JaegerConfig struct {
+	Endpoint string `yaml:"endpoint" validate:"required"`
+}
+
+type TraceConfog struct {
+	Exporter string        `yaml:"exporter" validate:"required"`
+	Jaeger   *JaegerConfig `yaml:"jaeger"`
+}
+
 type CORSConfig struct {
 	AllowOrigins []string `yaml:"allowOrigins"`
 }
@@ -56,14 +66,14 @@ type LogConfig struct {
 	Level string `yaml:"level"`
 }
 
-type DebugConfig struct {
-	GinMode bool `yaml:"ginMode"`
-	Wait    bool `yaml:"wait"`
-}
-
 type SwaggerConfig struct {
 	Host   string `yaml:"host"`
 	Schema string `yaml:"schema"`
+}
+
+type DebugConfig struct {
+	GinMode bool `yaml:"ginMode"`
+	Wait    bool `yaml:"wait"`
 }
 
 type Config struct {
@@ -71,6 +81,7 @@ type Config struct {
 	DB       *DBConfig       `yaml:"db" validate:"required"`
 	Auth     *AuthConfig     `yaml:"auth" validate:"required"`
 	Azure    *AzureConfig    `yaml:"azure" validate:"required"`
+	Trace    *TraceConfog    `yaml:"trace" validate:"required"`
 	CORS     *CORSConfig     `yaml:"cors" validate:"required"`
 	Shutdown *ShutdownConfig `yaml:"shutdown" validate:"required"`
 	Log      *LogConfig      `yaml:"log" validate:"required"`

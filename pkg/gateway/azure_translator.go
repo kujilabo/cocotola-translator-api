@@ -33,12 +33,14 @@ func NewAzureTranslationClient(subscriptionKey string) service.AzureTranslationC
 
 func (c *azureTranslationClient) DictionaryLookup(ctx context.Context, text string, fromLang, toLang domain.Lang2) ([]service.AzureTranslation, error) {
 	logger := log.FromContext(ctx)
-	result, err := c.client.DictionaryLookup(context.Background(), fromLang.String(), toLang.String(), []translatortext.DictionaryLookupTextInput{{Text: to.StringPtr(text)}}, "")
+	ctx, span := tracer.Start(ctx, "DictionaryLookup")
+	defer span.End()
+
+	result, err := c.client.DictionaryLookup(ctx, fromLang.String(), toLang.String(), []translatortext.DictionaryLookupTextInput{{Text: to.StringPtr(text)}}, "")
 	if err != nil {
 		return nil, err
 	}
 	if result.Value == nil {
-		logger.Info("a")
 		return nil, nil
 	}
 
@@ -63,7 +65,6 @@ func (c *azureTranslationClient) DictionaryLookup(ctx context.Context, text stri
 			})
 		}
 	}
-	logger.Info("b")
 	return translations, nil
 }
 
