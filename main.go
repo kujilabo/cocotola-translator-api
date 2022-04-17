@@ -15,6 +15,9 @@ import (
 	"github.com/gin-gonic/gin"
 	ginlog "github.com/onrik/logrus/gin"
 	"github.com/sirupsen/logrus"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/propagation"
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	"golang.org/x/xerrors"
 	"gorm.io/gorm"
 
@@ -59,11 +62,12 @@ func main() {
 		done <- true
 	}()
 
-	cfg, db, sqlDB, router, err := initialize(ctx, *env)
+	cfg, db, sqlDB, router, tp, err := initialize(ctx, *env)
 	if err != nil {
 		panic(err)
 	}
 	defer sqlDB.Close()
+	defer tp.ForceFlush(ctx) // flushes any pending spans
 
 	authMiddleware := gin.BasicAuth(gin.Accounts{
 		cfg.Auth.Username: cfg.Auth.Password,
@@ -104,8 +108,7 @@ func main() {
 	}
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-	docs.SwaggerInfo.Title = "Swagger Example API"
-	docs.SwaggerInfo.Description = "This is a sample server Petstore server."
+	docs.SwaggerInfo.Title = cfg.App.Name
 	docs.SwaggerInfo.Version = "1.0"
 	docs.SwaggerInfo.Host = cfg.Swagger.Host
 	docs.SwaggerInfo.Schemes = []string{cfg.Swagger.Schema}
@@ -137,15 +140,15 @@ func main() {
 	logrus.Info("exited")
 }
 
-func initialize(ctx context.Context, env string) (*config.Config, *gorm.DB, *sql.DB, *gin.Engine, error) {
+func initialize(ctx context.Context, env string) (*config.Config, *gorm.DB, *sql.DB, *gin.Engine, *sdktrace.TracerProvider, error) {
 	cfg, err := config.LoadConfig(env)
 	if err != nil {
-		return nil, nil, nil, nil, err
+		return nil, nil, nil, nil, nil, err
 	}
 
 	// init log
 	if err := config.InitLog(env, cfg.Log); err != nil {
-		return nil, nil, nil, nil, err
+		return nil, nil, nil, nil, nil, err
 	}
 
 	// cors
@@ -153,13 +156,21 @@ func initialize(ctx context.Context, env string) (*config.Config, *gorm.DB, *sql
 	logrus.Infof("cors: %+v", corsConfig)
 
 	if err := corsConfig.Validate(); err != nil {
-		return nil, nil, nil, nil, err
+		return nil, nil, nil, nil, nil, err
 	}
+
+	// tracer
+	tp, err := config.InitTracerProvider(cfg)
+	if err != nil {
+		return nil, nil, nil, nil, nil, xerrors.Errorf("failed to InitTracerProvider. err: %w", err)
+	}
+	otel.SetTracerProvider(tp)
+	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
 
 	// init db
 	db, sqlDB, err := initDB(cfg.DB)
 	if err != nil {
-		return nil, nil, nil, nil, xerrors.Errorf("failed to InitDB. err: %w", err)
+		return nil, nil, nil, nil, nil, xerrors.Errorf("failed to InitDB. err: %w", err)
 	}
 
 	router := gin.New()
@@ -177,7 +188,7 @@ func initialize(ctx context.Context, env string) (*config.Config, *gorm.DB, *sql
 		router.Use(middleware.NewWaitMiddleware())
 	}
 
-	return cfg, db, sqlDB, router, nil
+	return cfg, db, sqlDB, router, tp, nil
 }
 
 func initDB(cfg *config.DBConfig) (*gorm.DB, *sql.DB, error) {
