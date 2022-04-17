@@ -15,7 +15,7 @@ steps:
     id: "docker tag"
     args:
       - "push"
-      - "gcr.io/$PROJECT_ID/cocotola-translator-api:$SHORT_SHA"
+      - "gcr.io/$PROJECT_ID/cocotola-translator-api:latest"
 
   - name: "gcr.io/cloud-builders/git"
     secretEnv: ["SSH_KEY"]
