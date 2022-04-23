@@ -1,3 +1,4 @@
+//go:generate mockery --output mock --name RepositoryFactory
 package service
 
 import (
@@ -5,7 +6,7 @@ import (
 )
 
 type RepositoryFactory interface {
-	NewAzureTranslationRepository(ctx context.Context) (AzureTranslationRepository, error)
+	NewAzureTranslationRepository(ctx context.Context) AzureTranslationRepository
 
-	NewCustomTranslationRepository(ctx context.Context) (CustomTranslationRepository, error)
+	NewCustomTranslationRepository(ctx context.Context) CustomTranslationRepository
 }

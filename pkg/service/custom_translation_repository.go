@@ -1,3 +1,5 @@
+//go:generate mockery --output mock --name TranslationUpdateParameter
+//go:generate mockery --output mock --name CustomTranslationRepository
 package service
 
 import (

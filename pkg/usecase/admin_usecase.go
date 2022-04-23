@@ -9,6 +9,7 @@ import (
 	"github.com/kujilabo/cocotola-translator-api/pkg/domain"
 	"github.com/kujilabo/cocotola-translator-api/pkg/service"
 	"github.com/kujilabo/cocotola-translator-api/pkg_lib/log"
+	"golang.org/x/xerrors"
 )
 
 type AdminUsecase interface {
@@ -34,18 +35,12 @@ func NewAdminUsecase(rf service.RepositoryFactory) AdminUsecase {
 }
 
 func (u *adminUsecase) FindTranslationsByFirstLetter(ctx context.Context, lang domain.Lang2, firstLetter string) ([]domain.Translation, error) {
-	customRepo, err := u.rf.NewCustomTranslationRepository(ctx)
-	if err != nil {
-		return nil, err
-	}
+	customRepo := u.rf.NewCustomTranslationRepository(ctx)
 	customResults, err := customRepo.FindByFirstLetter(ctx, lang, firstLetter)
 	if err != nil {
 		return nil, err
 	}
-	azureRepo, err := u.rf.NewAzureTranslationRepository(ctx)
-	if err != nil {
-		return nil, err
-	}
+	azureRepo := u.rf.NewAzureTranslationRepository(ctx)
 	azureResults, err := azureRepo.FindByFirstLetter(ctx, lang, firstLetter)
 	if err != nil {
 		return nil, err
@@ -77,10 +72,7 @@ func (u *adminUsecase) FindTranslationsByFirstLetter(ctx context.Context, lang d
 }
 
 func (u *adminUsecase) FindTranslationByTextAndPos(ctx context.Context, lang domain.Lang2, text string, pos domain.WordPos) (domain.Translation, error) {
-	customRepo, err := u.rf.NewCustomTranslationRepository(ctx)
-	if err != nil {
-		return nil, err
-	}
+	customRepo := u.rf.NewCustomTranslationRepository(ctx)
 	customResult, err := customRepo.FindByTextAndPos(ctx, lang, text, pos)
 	if err == nil {
 		return customResult, nil
@@ -89,10 +81,7 @@ func (u *adminUsecase) FindTranslationByTextAndPos(ctx context.Context, lang dom
 		return nil, err
 	}
 
-	azureRepo, err := u.rf.NewAzureTranslationRepository(ctx)
-	if err != nil {
-		return nil, err
-	}
+	azureRepo := u.rf.NewAzureTranslationRepository(ctx)
 	azureResult, err := azureRepo.FindByTextAndPos(ctx, lang, text, pos)
 	if err != nil {
 		return nil, err
@@ -102,18 +91,12 @@ func (u *adminUsecase) FindTranslationByTextAndPos(ctx context.Context, lang dom
 
 func (u *adminUsecase) FindTranslationByText(ctx context.Context, lang domain.Lang2, text string) ([]domain.Translation, error) {
 	logger := log.FromContext(ctx)
-	customRepo, err := u.rf.NewCustomTranslationRepository(ctx)
-	if err != nil {
-		return nil, err
-	}
+	customRepo := u.rf.NewCustomTranslationRepository(ctx)
 	customResults, err := customRepo.FindByText(ctx, lang, text)
 	if err != nil {
 		return nil, err
 	}
-	azureRepo, err := u.rf.NewAzureTranslationRepository(ctx)
-	if err != nil {
-		return nil, err
-	}
+	azureRepo := u.rf.NewAzureTranslationRepository(ctx)
 	azureResults, err := azureRepo.FindByText(ctx, lang, text)
 	if err != nil {
 		return nil, err
@@ -147,11 +130,7 @@ func (u *adminUsecase) FindTranslationByText(ctx context.Context, lang domain.La
 }
 
 func (u *adminUsecase) AddTranslation(ctx context.Context, param service.TranslationAddParameter) error {
-	customRepo, err := u.rf.NewCustomTranslationRepository(ctx)
-	if err != nil {
-		return err
-	}
-
+	customRepo := u.rf.NewCustomTranslationRepository(ctx)
 	if err := customRepo.Add(ctx, param); err != nil {
 		return err
 	}
@@ -159,10 +138,7 @@ func (u *adminUsecase) AddTranslation(ctx context.Context, param service.Transla
 }
 
 func (u *adminUsecase) UpdateTranslation(ctx context.Context, lang domain.Lang2, text string, pos domain.WordPos, param service.TranslationUpdateParameter) error {
-	customRepo, err := u.rf.NewCustomTranslationRepository(ctx)
-	if err != nil {
-		return err
-	}
+	customRepo := u.rf.NewCustomTranslationRepository(ctx)
 
 	translationFound := true
 	if _, err := customRepo.FindByTextAndPos(ctx, lang, text, pos); err != nil {
@@ -191,13 +167,9 @@ func (u *adminUsecase) UpdateTranslation(ctx context.Context, lang domain.Lang2,
 }
 
 func (u *adminUsecase) RemoveTranslation(ctx context.Context, lang domain.Lang2, text string, pos domain.WordPos) error {
-	customRepo, err := u.rf.NewCustomTranslationRepository(ctx)
-	if err != nil {
-		return err
-	}
-
+	customRepo := u.rf.NewCustomTranslationRepository(ctx)
 	if err := customRepo.Remove(ctx, lang, text, pos); err != nil {
-		return err
+		return xerrors.Errorf("failed to customRepo.Remove. err: %w", err)
 	}
 	return nil
 }
