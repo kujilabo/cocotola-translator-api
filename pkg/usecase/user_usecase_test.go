@@ -13,14 +13,14 @@ import (
 	"github.com/kujilabo/cocotola-translator-api/pkg/usecase"
 )
 
-func test_userUsecase_DictionaryLookup_init(t *testing.T, ctx context.Context) (*service_mock.AzureTranslationClientMock, *service_mock.AzureTranslationRepositoryMock, *service_mock.CustomTranslationRepositoryMock, usecase.UserUsecase) {
+func test_userUsecase_DictionaryLookup_init(t *testing.T, ctx context.Context) (*service_mock.AzureTranslationClient, *service_mock.AzureTranslationRepository, *service_mock.CustomTranslationRepository, usecase.UserUsecase) {
 
-	azureTranslationRepo := new(service_mock.AzureTranslationRepositoryMock)
-	customTranslationRepo := new(service_mock.CustomTranslationRepositoryMock)
-	rf := new(service_mock.RepositoryFactoryMock)
+	azureTranslationRepo := new(service_mock.AzureTranslationRepository)
+	customTranslationRepo := new(service_mock.CustomTranslationRepository)
+	rf := new(service_mock.RepositoryFactory)
 	rf.On("NewAzureTranslationRepository", ctx).Return(azureTranslationRepo, nil)
 	rf.On("NewCustomTranslationRepository", ctx).Return(customTranslationRepo, nil)
-	azureTranslationClient := new(service_mock.AzureTranslationClientMock)
+	azureTranslationClient := new(service_mock.AzureTranslationClient)
 	userUsecase := usecase.NewUserUsecase(rf, azureTranslationClient)
 
 	return azureTranslationClient, azureTranslationRepo, customTranslationRepo, userUsecase

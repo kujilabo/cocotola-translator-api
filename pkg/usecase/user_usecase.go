@@ -48,10 +48,8 @@ func (u *userUsecase) customDictionaryLookup(ctx context.Context, text string, f
 	// if err != nil {
 	// 	return nil, err
 	// }
-	customRepo, err := u.rf.NewCustomTranslationRepository(ctx)
-	if err != nil {
-		return nil, err
-	}
+	customRepo := u.rf.NewCustomTranslationRepository(ctx)
+
 	customContained, err := customRepo.Contain(ctx, toLang, text)
 	if err != nil {
 		return nil, err
@@ -73,10 +71,7 @@ func (u *userUsecase) azureDictionaryLookup(ctx context.Context, fromLang, toLan
 	// 	return nil, err
 	// }
 
-	azureRepo, err := u.rf.NewAzureTranslationRepository(ctx)
-	if err != nil {
-		return nil, err
-	}
+	azureRepo := u.rf.NewAzureTranslationRepository(ctx)
 	azureContained, err := azureRepo.Contain(ctx, toLang, text)
 	if err != nil {
 		return nil, err

@@ -1,3 +1,4 @@
+//go:generate mockery --output mock --name Translation
 package domain
 
 import (
@@ -6,10 +7,7 @@ import (
 	lib "github.com/kujilabo/cocotola-translator-api/pkg_lib/domain"
 )
 
-// type TranslationID uint
-
 type Translation interface {
-	// GetID() TranslationID
 	GetVersion() int
 	GetCreatedAt() time.Time
 	GetUpdatedAt() time.Time
@@ -21,7 +19,6 @@ type Translation interface {
 }
 
 type translation struct {
-	// ID         TranslationID `validate:"gte=0"`
 	Version    int `validate:"required,gte=1"`
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
@@ -32,9 +29,7 @@ type translation struct {
 	Provider   string
 }
 
-func NewTranslation(
-	// id TranslationID,
-	version int, createdAt time.Time, updatedAt time.Time, text string, pos WordPos, lang Lang2, translated, provider string) (Translation, error) {
+func NewTranslation(version int, createdAt time.Time, updatedAt time.Time, text string, pos WordPos, lang Lang2, translated, provider string) (Translation, error) {
 	m := &translation{
 		// ID:         id,
 		Version:    version,

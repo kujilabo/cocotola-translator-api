@@ -20,10 +20,10 @@ func NewRepositoryFactory(ctx context.Context, db *gorm.DB, driverName string) (
 	}, nil
 }
 
-func (f *repositoryFactory) NewAzureTranslationRepository(ctx context.Context) (service.AzureTranslationRepository, error) {
-	return NewAzureTranslationRepository(f.db), nil
+func (f *repositoryFactory) NewAzureTranslationRepository(ctx context.Context) service.AzureTranslationRepository {
+	return NewAzureTranslationRepository(f.db)
 }
 
-func (f *repositoryFactory) NewCustomTranslationRepository(ctx context.Context) (service.CustomTranslationRepository, error) {
-	return NewCustomTranslationRepository(f.db), nil
+func (f *repositoryFactory) NewCustomTranslationRepository(ctx context.Context) service.CustomTranslationRepository {
+	return NewCustomTranslationRepository(f.db)
 }
