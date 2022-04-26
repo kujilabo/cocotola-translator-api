@@ -15,6 +15,7 @@ import (
 	"github.com/gin-gonic/gin"
 	ginlog "github.com/onrik/logrus/gin"
 	"github.com/sirupsen/logrus"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/propagation"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
@@ -86,6 +87,8 @@ func main() {
 
 	v1 := router.Group("v1")
 	{
+		v1.Use(otelgin.Middleware(cfg.App.Name))
+		v1.Use(middleware.NewTraceLogMiddleware(cfg.App.Name))
 		v1.Use(authMiddleware)
 		{
 			admin := v1.Group("admin")
@@ -99,9 +102,9 @@ func main() {
 			admin.POST("export", adminHandler.ExportTranslations)
 		}
 		{
-			admin := v1.Group("user")
+			user := v1.Group("user")
 			userHandler := handler.NewUserHandler(userUsecase)
-			admin.GET("dictionary/lookup", userHandler.DictionaryLookup)
+			user.GET("dictionary/lookup", userHandler.DictionaryLookup)
 		}
 	}
 
@@ -177,7 +180,6 @@ func initialize(ctx context.Context, env string) (*config.Config, *gorm.DB, *sql
 
 	router := gin.New()
 	router.Use(cors.New(corsConfig))
-	router.Use(middleware.NewLogMiddleware())
 	router.Use(gin.Recovery())
 
 	if cfg.Debug.GinMode {
