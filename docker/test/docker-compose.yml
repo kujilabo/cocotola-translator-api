@@ -1,5 +1,5 @@
 ---
-test-mysql:
+test-translator-mysql:
   image: mysql:8.0.27
   container_name: test-translator-mysql
   command: mysqld --character-set-server=utf8mb4

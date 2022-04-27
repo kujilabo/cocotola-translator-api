@@ -31,7 +31,7 @@ func Test_customTranslationRepository_FindByFirstLetter(t *testing.T) {
 	for _, db := range dbList() {
 		type args struct {
 			firstLetter string
-			lang        domain.Lang2
+			lang2       domain.Lang2
 		}
 		result := db.Session(&gorm.Session{AllowGlobalUpdate: true}).Exec("delete from custom_translation")
 		assert.NoError(t, result.Error)
@@ -39,7 +39,7 @@ func Test_customTranslationRepository_FindByFirstLetter(t *testing.T) {
 		book, err := domain.NewTranslation(1, time.Now(), time.Now(), "book", domain.PosNoun, domain.Lang2JA, "本", "custom")
 		assert.NoError(t, err)
 
-		result = db.Debug().Session(&gorm.Session{AllowGlobalUpdate: true}).Exec(fmt.Sprintf("insert into custom_translation (version,text,pos,lang,translated) values(%d,'%s',%d,'%s','%s')", uint(book.GetVersion()), book.GetText(), int(book.GetPos()), book.GetLang().String(), book.GetTranslated()))
+		result = db.Debug().Session(&gorm.Session{AllowGlobalUpdate: true}).Exec(fmt.Sprintf("insert into custom_translation (version,text,pos,lang2,translated) values(%d,'%s',%d,'%s','%s')", uint(book.GetVersion()), book.GetText(), int(book.GetPos()), book.GetLang2().String(), book.GetTranslated()))
 		assert.NoError(t, result.Error)
 
 		tests := []struct {
@@ -52,7 +52,7 @@ func Test_customTranslationRepository_FindByFirstLetter(t *testing.T) {
 				name: "found a record",
 				args: args{
 					firstLetter: "b",
-					lang:        domain.Lang2JA,
+					lang2:       domain.Lang2JA,
 				},
 				want: []domain.Translation{
 					book,
@@ -63,7 +63,7 @@ func Test_customTranslationRepository_FindByFirstLetter(t *testing.T) {
 		r := gateway.NewCustomTranslationRepository(db)
 		for _, tt := range tests {
 			t.Run(tt.name, func(t *testing.T) {
-				got, err := r.FindByFirstLetter(bg, tt.args.lang, tt.args.firstLetter)
+				got, err := r.FindByFirstLetter(bg, tt.args.lang2, tt.args.firstLetter)
 				if (err != nil) != tt.wantErr {
 					t.Errorf("customTranslationRepository.FindByFirstLetter() error = %v, wantErr %v", err, tt.wantErr)
 					return

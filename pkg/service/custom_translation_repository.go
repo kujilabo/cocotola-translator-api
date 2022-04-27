@@ -15,7 +15,7 @@ import (
 type TranslationAddParameter interface {
 	GetText() string
 	GetPos() domain.WordPos
-	GetLang() domain.Lang2
+	GetLang2() domain.Lang2
 	GetTranslated() string
 }
 
@@ -26,11 +26,11 @@ type translationAddParameter struct {
 	Translated string
 }
 
-func NewTransalationAddParameter(text string, pos domain.WordPos, lang domain.Lang2, translated string) (TranslationAddParameter, error) {
+func NewTransalationAddParameter(text string, pos domain.WordPos, lang2 domain.Lang2, translated string) (TranslationAddParameter, error) {
 	m := &translationAddParameter{
 		Text:       text,
 		Pos:        pos,
-		Lang2:      lang,
+		Lang2:      lang2,
 		Translated: translated,
 	}
 
@@ -45,7 +45,7 @@ func (p *translationAddParameter) GetPos() domain.WordPos {
 	return p.Pos
 }
 
-func (p *translationAddParameter) GetLang() domain.Lang2 {
+func (p *translationAddParameter) GetLang2() domain.Lang2 {
 	return p.Lang2
 }
 
@@ -76,15 +76,15 @@ func (p *translationUpdateParameter) GetTranslated() string {
 type CustomTranslationRepository interface {
 	Add(ctx context.Context, param TranslationAddParameter) error
 
-	Update(ctx context.Context, lang domain.Lang2, text string, pos domain.WordPos, param TranslationUpdateParameter) error
+	Update(ctx context.Context, lang2 domain.Lang2, text string, pos domain.WordPos, param TranslationUpdateParameter) error
 
-	Remove(ctx context.Context, lang domain.Lang2, text string, pos domain.WordPos) error
+	Remove(ctx context.Context, lang2 domain.Lang2, text string, pos domain.WordPos) error
 
-	FindByText(ctx context.Context, lang domain.Lang2, text string) ([]domain.Translation, error)
+	FindByText(ctx context.Context, lang2 domain.Lang2, text string) ([]domain.Translation, error)
 
-	FindByTextAndPos(ctx context.Context, lang domain.Lang2, text string, pos domain.WordPos) (domain.Translation, error)
+	FindByTextAndPos(ctx context.Context, lang2 domain.Lang2, text string, pos domain.WordPos) (domain.Translation, error)
 
-	FindByFirstLetter(ctx context.Context, lang domain.Lang2, firstLetter string) ([]domain.Translation, error)
+	FindByFirstLetter(ctx context.Context, lang2 domain.Lang2, firstLetter string) ([]domain.Translation, error)
 
-	Contain(ctx context.Context, lang domain.Lang2, text string) (bool, error)
+	Contain(ctx context.Context, lang2 domain.Lang2, text string) (bool, error)
 }

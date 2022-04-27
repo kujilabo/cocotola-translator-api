@@ -13,17 +13,17 @@ import (
 )
 
 type AdminUsecase interface {
-	FindTranslationsByFirstLetter(ctx context.Context, lang domain.Lang2, firstLetter string) ([]domain.Translation, error)
+	FindTranslationsByFirstLetter(ctx context.Context, lang2 domain.Lang2, firstLetter string) ([]domain.Translation, error)
 
-	FindTranslationByTextAndPos(ctx context.Context, lang domain.Lang2, text string, pos domain.WordPos) (domain.Translation, error)
+	FindTranslationByTextAndPos(ctx context.Context, lang2 domain.Lang2, text string, pos domain.WordPos) (domain.Translation, error)
 
-	FindTranslationByText(ctx context.Context, lang domain.Lang2, text string) ([]domain.Translation, error)
+	FindTranslationByText(ctx context.Context, lang2 domain.Lang2, text string) ([]domain.Translation, error)
 
 	AddTranslation(ctx context.Context, param service.TranslationAddParameter) error
 
-	UpdateTranslation(ctx context.Context, lang domain.Lang2, text string, pos domain.WordPos, param service.TranslationUpdateParameter) error
+	UpdateTranslation(ctx context.Context, lang2 domain.Lang2, text string, pos domain.WordPos, param service.TranslationUpdateParameter) error
 
-	RemoveTranslation(ctx context.Context, lang domain.Lang2, text string, pos domain.WordPos) error
+	RemoveTranslation(ctx context.Context, lang2 domain.Lang2, text string, pos domain.WordPos) error
 }
 
 type adminUsecase struct {
@@ -34,14 +34,14 @@ func NewAdminUsecase(rf service.RepositoryFactory) AdminUsecase {
 	return &adminUsecase{rf: rf}
 }
 
-func (u *adminUsecase) FindTranslationsByFirstLetter(ctx context.Context, lang domain.Lang2, firstLetter string) ([]domain.Translation, error) {
+func (u *adminUsecase) FindTranslationsByFirstLetter(ctx context.Context, lang2 domain.Lang2, firstLetter string) ([]domain.Translation, error) {
 	customRepo := u.rf.NewCustomTranslationRepository(ctx)
-	customResults, err := customRepo.FindByFirstLetter(ctx, lang, firstLetter)
+	customResults, err := customRepo.FindByFirstLetter(ctx, lang2, firstLetter)
 	if err != nil {
 		return nil, err
 	}
 	azureRepo := u.rf.NewAzureTranslationRepository(ctx)
-	azureResults, err := azureRepo.FindByFirstLetter(ctx, lang, firstLetter)
+	azureResults, err := azureRepo.FindByFirstLetter(ctx, lang2, firstLetter)
 	if err != nil {
 		return nil, err
 	}
@@ -71,9 +71,9 @@ func (u *adminUsecase) FindTranslationsByFirstLetter(ctx context.Context, lang d
 	return results, nil
 }
 
-func (u *adminUsecase) FindTranslationByTextAndPos(ctx context.Context, lang domain.Lang2, text string, pos domain.WordPos) (domain.Translation, error) {
+func (u *adminUsecase) FindTranslationByTextAndPos(ctx context.Context, lang2 domain.Lang2, text string, pos domain.WordPos) (domain.Translation, error) {
 	customRepo := u.rf.NewCustomTranslationRepository(ctx)
-	customResult, err := customRepo.FindByTextAndPos(ctx, lang, text, pos)
+	customResult, err := customRepo.FindByTextAndPos(ctx, lang2, text, pos)
 	if err == nil {
 		return customResult, nil
 	}
@@ -82,22 +82,22 @@ func (u *adminUsecase) FindTranslationByTextAndPos(ctx context.Context, lang dom
 	}
 
 	azureRepo := u.rf.NewAzureTranslationRepository(ctx)
-	azureResult, err := azureRepo.FindByTextAndPos(ctx, lang, text, pos)
+	azureResult, err := azureRepo.FindByTextAndPos(ctx, lang2, text, pos)
 	if err != nil {
 		return nil, err
 	}
 	return azureResult, nil
 }
 
-func (u *adminUsecase) FindTranslationByText(ctx context.Context, lang domain.Lang2, text string) ([]domain.Translation, error) {
+func (u *adminUsecase) FindTranslationByText(ctx context.Context, lang2 domain.Lang2, text string) ([]domain.Translation, error) {
 	logger := log.FromContext(ctx)
 	customRepo := u.rf.NewCustomTranslationRepository(ctx)
-	customResults, err := customRepo.FindByText(ctx, lang, text)
+	customResults, err := customRepo.FindByText(ctx, lang2, text)
 	if err != nil {
 		return nil, err
 	}
 	azureRepo := u.rf.NewAzureTranslationRepository(ctx)
-	azureResults, err := azureRepo.FindByText(ctx, lang, text)
+	azureResults, err := azureRepo.FindByText(ctx, lang2, text)
 	if err != nil {
 		return nil, err
 	}
@@ -137,11 +137,11 @@ func (u *adminUsecase) AddTranslation(ctx context.Context, param service.Transla
 	return nil
 }
 
-func (u *adminUsecase) UpdateTranslation(ctx context.Context, lang domain.Lang2, text string, pos domain.WordPos, param service.TranslationUpdateParameter) error {
+func (u *adminUsecase) UpdateTranslation(ctx context.Context, lang2 domain.Lang2, text string, pos domain.WordPos, param service.TranslationUpdateParameter) error {
 	customRepo := u.rf.NewCustomTranslationRepository(ctx)
 
 	translationFound := true
-	if _, err := customRepo.FindByTextAndPos(ctx, lang, text, pos); err != nil {
+	if _, err := customRepo.FindByTextAndPos(ctx, lang2, text, pos); err != nil {
 		if errors.Is(err, service.ErrTranslationNotFound) {
 			translationFound = false
 		} else {
@@ -150,13 +150,13 @@ func (u *adminUsecase) UpdateTranslation(ctx context.Context, lang domain.Lang2,
 	}
 
 	if translationFound {
-		if err := customRepo.Update(ctx, lang, text, pos, param); err != nil {
+		if err := customRepo.Update(ctx, lang2, text, pos, param); err != nil {
 			return err
 		}
 		return nil
 	}
 
-	paramToAdd, err := service.NewTransalationAddParameter(text, pos, lang, param.GetTranslated())
+	paramToAdd, err := service.NewTransalationAddParameter(text, pos, lang2, param.GetTranslated())
 	if err != nil {
 		return err
 	}
@@ -166,9 +166,9 @@ func (u *adminUsecase) UpdateTranslation(ctx context.Context, lang domain.Lang2,
 	return nil
 }
 
-func (u *adminUsecase) RemoveTranslation(ctx context.Context, lang domain.Lang2, text string, pos domain.WordPos) error {
+func (u *adminUsecase) RemoveTranslation(ctx context.Context, lang2 domain.Lang2, text string, pos domain.WordPos) error {
 	customRepo := u.rf.NewCustomTranslationRepository(ctx)
-	if err := customRepo.Remove(ctx, lang, text, pos); err != nil {
+	if err := customRepo.Remove(ctx, lang2, text, pos); err != nil {
 		return xerrors.Errorf("failed to customRepo.Remove. err: %w", err)
 	}
 	return nil

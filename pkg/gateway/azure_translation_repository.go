@@ -20,7 +20,7 @@ type azureTranslationRepository struct {
 
 type azureTranslationEntity struct {
 	Text   string
-	Lang   string
+	Lang2  string
 	Result string
 }
 
@@ -34,7 +34,7 @@ func NewAzureTranslationRepository(db *gorm.DB) service.AzureTranslationReposito
 	}
 }
 
-func (r *azureTranslationRepository) Add(ctx context.Context, lang domain.Lang2, text string, result []service.AzureTranslation) error {
+func (r *azureTranslationRepository) Add(ctx context.Context, lang2 domain.Lang2, text string, result []service.AzureTranslation) error {
 	resultBytes, err := json.Marshal(result)
 	if err != nil {
 		return err
@@ -42,7 +42,7 @@ func (r *azureTranslationRepository) Add(ctx context.Context, lang domain.Lang2,
 
 	entity := azureTranslationEntity{
 		Text:   text,
-		Lang:   lang.String(),
+		Lang2:  lang2.String(),
 		Result: string(resultBytes),
 	}
 
@@ -53,12 +53,12 @@ func (r *azureTranslationRepository) Add(ctx context.Context, lang domain.Lang2,
 	return nil
 }
 
-func (r *azureTranslationRepository) Find(ctx context.Context, lang domain.Lang2, text string) ([]service.AzureTranslation, error) {
+func (r *azureTranslationRepository) Find(ctx context.Context, lang2 domain.Lang2, text string) ([]service.AzureTranslation, error) {
 	entity := azureTranslationEntity{}
 
 	if result := r.db.Where(&azureTranslationEntity{
-		Text: text,
-		Lang: lang.String(),
+		Text:  text,
+		Lang2: lang2.String(),
 	}).First(&entity); result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return nil, service.ErrTranslationNotFound
@@ -74,8 +74,8 @@ func (r *azureTranslationRepository) Find(ctx context.Context, lang domain.Lang2
 
 	return result, nil
 }
-func (r *azureTranslationRepository) FindByTextAndPos(ctx context.Context, lang domain.Lang2, text string, pos domain.WordPos) (domain.Translation, error) {
-	results, err := r.Find(ctx, lang, text)
+func (r *azureTranslationRepository) FindByTextAndPos(ctx context.Context, lang2 domain.Lang2, text string, pos domain.WordPos) (domain.Translation, error) {
+	results, err := r.Find(ctx, lang2, text)
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +84,7 @@ func (r *azureTranslationRepository) FindByTextAndPos(ctx context.Context, lang 
 			continue
 		}
 
-		t, err := r.ToTranslation(lang, text)
+		t, err := r.ToTranslation(lang2, text)
 		if err != nil {
 			return nil, err
 		}
@@ -94,15 +94,15 @@ func (r *azureTranslationRepository) FindByTextAndPos(ctx context.Context, lang 
 	return nil, service.ErrTranslationNotFound
 }
 
-func (r *azureTranslationRepository) FindByText(ctx context.Context, lang domain.Lang2, text string) ([]domain.Translation, error) {
-	azureTranslations, err := r.Find(ctx, lang, text)
+func (r *azureTranslationRepository) FindByText(ctx context.Context, lang2 domain.Lang2, text string) ([]domain.Translation, error) {
+	azureTranslations, err := r.Find(ctx, lang2, text)
 	if err != nil {
 		return nil, err
 	}
 
 	translations := make([]domain.Translation, 0)
 	for _, r := range azureTranslations {
-		t, err := r.ToTranslation(lang, text)
+		t, err := r.ToTranslation(lang2, text)
 		if err != nil {
 			return nil, err
 		}
@@ -112,7 +112,7 @@ func (r *azureTranslationRepository) FindByText(ctx context.Context, lang domain
 	return translations, nil
 }
 
-func (r *azureTranslationRepository) FindByFirstLetter(ctx context.Context, lang domain.Lang2, firstLetter string) ([]domain.Translation, error) {
+func (r *azureTranslationRepository) FindByFirstLetter(ctx context.Context, lang2 domain.Lang2, firstLetter string) ([]domain.Translation, error) {
 	if len(firstLetter) != 1 {
 		return nil, libD.ErrInvalidArgument
 	}
@@ -129,7 +129,7 @@ func (r *azureTranslationRepository) FindByFirstLetter(ctx context.Context, lang
 
 	entities := []azureTranslationEntity{}
 	if result := r.db.Where(&azureTranslationEntity{
-		Lang: lang.String(),
+		Lang2: lang2.String(),
 	}).Where("text like ? OR text like ?", upper, lower).Find(&entities); result.Error != nil {
 		return nil, result.Error
 	}
@@ -141,7 +141,7 @@ func (r *azureTranslationRepository) FindByFirstLetter(ctx context.Context, lang
 			return nil, err
 		}
 		for _, r := range result {
-			t, err := r.ToTranslation(lang, e.Text)
+			t, err := r.ToTranslation(lang2, e.Text)
 			if err != nil {
 				return nil, err
 			}
@@ -180,12 +180,12 @@ func (r *azureTranslationRepository) FindByFirstLetter(ctx context.Context, lang
 // 	}, nil
 // }
 
-func (r *azureTranslationRepository) Contain(ctx context.Context, lang domain.Lang2, text string) (bool, error) {
+func (r *azureTranslationRepository) Contain(ctx context.Context, lang2 domain.Lang2, text string) (bool, error) {
 	entity := azureTranslationEntity{}
 
 	if result := r.db.Where(&azureTranslationEntity{
-		Text: text,
-		Lang: lang.String(),
+		Text:  text,
+		Lang2: lang2.String(),
 	}).First(&entity); result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return false, nil
