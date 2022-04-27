@@ -5,10 +5,9 @@ create table `custom_translation` (
 ,`updated_at` datetime not null default current_timestamp on update current_timestamp
 ,`text` varchar(30) character set ascii not null
 ,`pos` int not null
-,`lang` varchar(2) character set ascii not null
+,`lang2` varchar(2) character set ascii not null
 ,`translated` varchar(100) not null
 ,`disabled` tinyint(1) not null default 0
 -- ,primary key('id')
--- ,unique(`text`, `pos`, `lang`)
-,primary key(`text`, `pos`, `lang`)
+,primary key(`text`, `pos`, `lang2`)
 );

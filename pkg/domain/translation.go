@@ -13,7 +13,7 @@ type Translation interface {
 	GetUpdatedAt() time.Time
 	GetText() string
 	GetPos() WordPos
-	GetLang() Lang2
+	GetLang2() Lang2
 	GetTranslated() string
 	GetProvider() string
 }
@@ -29,7 +29,7 @@ type translation struct {
 	Provider   string
 }
 
-func NewTranslation(version int, createdAt time.Time, updatedAt time.Time, text string, pos WordPos, lang Lang2, translated, provider string) (Translation, error) {
+func NewTranslation(version int, createdAt time.Time, updatedAt time.Time, text string, pos WordPos, lang2 Lang2, translated, provider string) (Translation, error) {
 	m := &translation{
 		// ID:         id,
 		Version:    version,
@@ -37,7 +37,7 @@ func NewTranslation(version int, createdAt time.Time, updatedAt time.Time, text 
 		UpdatedAt:  updatedAt,
 		Text:       text,
 		Pos:        pos,
-		Lang2:      lang,
+		Lang2:      lang2,
 		Translated: translated,
 		Provider:   provider,
 	}
@@ -69,7 +69,7 @@ func (t *translation) GetPos() WordPos {
 	return t.Pos
 }
 
-func (t *translation) GetLang() Lang2 {
+func (t *translation) GetLang2() Lang2 {
 	return t.Lang2
 }
 

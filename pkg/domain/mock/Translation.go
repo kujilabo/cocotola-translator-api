@@ -30,8 +30,8 @@ func (_m *Translation) GetCreatedAt() time.Time {
 	return r0
 }
 
-// GetLang provides a mock function with given fields:
-func (_m *Translation) GetLang() domain.Lang2 {
+// GetLang2 provides a mock function with given fields:
+func (_m *Translation) GetLang2() domain.Lang2 {
 	ret := _m.Called()
 
 	var r0 domain.Lang2

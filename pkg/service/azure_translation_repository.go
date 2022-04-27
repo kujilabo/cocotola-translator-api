@@ -17,8 +17,8 @@ type AzureTranslation struct {
 	Confidence float64
 }
 
-func (t *AzureTranslation) ToTranslation(lang domain.Lang2, text string) (domain.Translation, error) {
-	return domain.NewTranslation(1, time.Now(), time.Now(), text, t.Pos, lang, t.Target, "azure")
+func (t *AzureTranslation) ToTranslation(lang2 domain.Lang2, text string) (domain.Translation, error) {
+	return domain.NewTranslation(1, time.Now(), time.Now(), text, t.Pos, lang2, t.Target, "azure")
 }
 
 type TranslationSearchCondition struct {
@@ -32,15 +32,15 @@ type TranslationSearchResult struct {
 }
 
 type AzureTranslationRepository interface {
-	Add(ctx context.Context, lang domain.Lang2, text string, result []AzureTranslation) error
+	Add(ctx context.Context, lang2 domain.Lang2, text string, result []AzureTranslation) error
 
-	Find(ctx context.Context, lang domain.Lang2, text string) ([]AzureTranslation, error)
+	Find(ctx context.Context, lang2 domain.Lang2, text string) ([]AzureTranslation, error)
 
-	FindByTextAndPos(ctx context.Context, lang domain.Lang2, text string, pos domain.WordPos) (domain.Translation, error)
+	FindByTextAndPos(ctx context.Context, lang2 domain.Lang2, text string, pos domain.WordPos) (domain.Translation, error)
 
-	FindByText(ctx context.Context, lang domain.Lang2, text string) ([]domain.Translation, error)
+	FindByText(ctx context.Context, lang2 domain.Lang2, text string) ([]domain.Translation, error)
 
-	FindByFirstLetter(ctx context.Context, lang domain.Lang2, firstLetter string) ([]domain.Translation, error)
+	FindByFirstLetter(ctx context.Context, lang2 domain.Lang2, firstLetter string) ([]domain.Translation, error)
 
-	Contain(ctx context.Context, lang domain.Lang2, text string) (bool, error)
+	Contain(ctx context.Context, lang2 domain.Lang2, text string) (bool, error)
 }
