@@ -215,7 +215,7 @@ var doc = `{
         "entity.Translation": {
             "type": "object",
             "properties": {
-                "lang": {
+                "lang2": {
                     "type": "string"
                 },
                 "pos": {
