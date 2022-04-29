@@ -1,7 +1,7 @@
 definitions:
   entity.Translation:
     properties:
-      lang:
+      lang2:
         type: string
       pos:
         type: integer
