@@ -33,7 +33,7 @@ func NewAzureTranslationClient(subscriptionKey string) service.AzureTranslationC
 
 func (c *azureTranslationClient) DictionaryLookup(ctx context.Context, text string, fromLang, toLang domain.Lang2) ([]service.AzureTranslation, error) {
 	logger := log.FromContext(ctx)
-	ctx, span := tracer.Start(ctx, "DictionaryLookup")
+	ctx, span := tracer.Start(ctx, "azureTranslationClient.DictionaryLookup")
 	defer span.End()
 
 	result, err := c.client.DictionaryLookup(ctx, fromLang.String(), toLang.String(), []translatortext.DictionaryLookupTextInput{{Text: to.StringPtr(text)}}, "")
