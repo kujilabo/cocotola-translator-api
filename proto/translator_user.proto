@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+option go_package = "github.com/kujilabo/cocotola-translator-api/proto";
+option java_multiple_files = true;
+option java_package = "io.grpc.examples.translatoruser";
+option java_outer_classname = "TranslatorUserProto";
+
+package proto;
+
+service TranslatorUser {
+  rpc DictionaryLookup (DictionaryLookupParameter) returns (DictionaryLookupResponses) {}
+  rpc DictionaryLookupWithPos (DictionaryLookupWithPosParameter) returns (DictionaryLookupResponse) {}
+}
+
+message DictionaryLookupParameter {
+  string fromLang2 = 1;
+  string toLang2 = 2;
+  string text = 3;
+}
+
+message DictionaryLookupWithPosParameter {
+  string fromLang2 = 1;
+  string toLang2 = 2;
+  string text = 3;
+  int32  pos = 4;
+}
+
+message DictionaryResponse {
+  string lang2 = 1;
+  string text = 2;
+  int32  pos = 3;
+  string translated = 4;
+  string provider= 5;
+}
+
+message DictionaryLookupResponses { 
+  repeated DictionaryResponse Results = 1;
+}
+message DictionaryLookupResponse { 
+   DictionaryResponse Result = 1;
+}

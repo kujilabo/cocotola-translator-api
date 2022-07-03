@@ -1,7 +1,8 @@
 ---
 app:
   name: cocotola-translator-api
-  port: 8180
+  httpPort: 8180
+  grpcPort: 50151
 db:
   # driverName: sqlite3
   # sqlite3:
@@ -31,6 +32,7 @@ shutdown:
 log:
   level: info
 swagger:
+  enabled: true
   host: localhost:8180
   schema: http
 debug:

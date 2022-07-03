@@ -1,0 +1,71 @@
+syntax = "proto3";
+
+option go_package = "github.com/kujilabo/cocotola-translator-api/proto";
+option java_multiple_files = true;
+option java_package = "io.grpc.examples.translatoradmin";
+option java_outer_classname = "TranslatorAdminProto";
+
+package proto;
+
+service TranslatorAdmin {
+  rpc FindTranslationsByFirstLetter (TranslationFindParameter) returns (TranslationFindResposne) {}
+  rpc FindTranslationByTextAndPos (TranslationFindByTextAndPosParameter) returns (TranslationResponse) {}
+  rpc FindTranslationsByText (TranslationFindByTextParameter) returns (TranslationFindResposne) {}
+  rpc AddTranslation (TranslationAddParameter) returns (TranslationAddResponse) {}
+  rpc UpdateTranslation (TranslationUpdateParameter) returns (TranslationAddResponse) {}
+  rpc RemoveTranslation (TranslationRemoveParameter) returns (TranslationRemoveResponse) {}
+}
+
+message TranslationFindParameter {
+  string lang2 = 1;
+  string letter = 2;
+}
+
+message TranslationFindByTextAndPosParameter {
+  string lang2 = 1;
+  string text = 2;
+  int32  pos = 3;
+}
+
+message TranslationFindByTextParameter {
+  string lang2 = 1;
+  string text = 2;
+}
+
+message TranslationResponse {
+  string lang2 = 1;
+  string text = 2;
+  int32  pos = 3;
+  string translated = 4;
+  string provider= 5;
+}
+
+message TranslationFindResposne { 
+  repeated TranslationResponse Results = 1;
+}
+
+message TranslationAddParameter {
+  string lang2 = 1;
+  string text = 2;
+  int32  pos = 3;
+  string translated = 4;
+}
+message TranslationAddResponse {
+}
+
+message TranslationUpdateParameter {
+  string lang2 = 1;
+  string text = 2;
+  int32  pos = 3;
+  string translated = 4;
+}
+message TranslationUpdateResponse {
+}
+
+message TranslationRemoveParameter {
+  string lang2 = 1;
+  string text = 2;
+  int32  pos = 3;
+}
+message TranslationRemoveResponse {
+}
