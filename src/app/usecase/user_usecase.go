@@ -24,6 +24,11 @@ type userUsecase struct {
 	azureTranslationClient service.AzureTranslationClient
 }
 
+type UserPresenter interface {
+	WriteTranslations(ctx context.Context, translations []domain.Translation) error
+	WriteTranslation(ctx context.Context, translation domain.Translation) error
+}
+
 func NewUserUsecase(rf service.RepositoryFactory, azureTranslationClient service.AzureTranslationClient) UserUsecase {
 	return &userUsecase{
 		rf:                     rf,

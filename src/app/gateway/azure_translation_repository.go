@@ -19,13 +19,13 @@ type azureTranslationRepository struct {
 	db *gorm.DB
 }
 
-type azureTranslationEntity struct {
+type azureTranslationDBEntity struct {
 	Text   string
 	Lang2  string
 	Result string
 }
 
-func (e *azureTranslationEntity) TableName() string {
+func (e *azureTranslationDBEntity) TableName() string {
 	return "azure_translation"
 }
 
@@ -41,7 +41,7 @@ func (r *azureTranslationRepository) Add(ctx context.Context, lang2 domain.Lang2
 		return err
 	}
 
-	entity := azureTranslationEntity{
+	entity := azureTranslationDBEntity{
 		Text:   text,
 		Lang2:  lang2.String(),
 		Result: string(resultBytes),
@@ -55,9 +55,9 @@ func (r *azureTranslationRepository) Add(ctx context.Context, lang2 domain.Lang2
 }
 
 func (r *azureTranslationRepository) Find(ctx context.Context, lang2 domain.Lang2, text string) ([]service.AzureTranslation, error) {
-	entity := azureTranslationEntity{}
+	entity := azureTranslationDBEntity{}
 
-	if result := r.db.Where(&azureTranslationEntity{
+	if result := r.db.Where(&azureTranslationDBEntity{
 		Text:  text,
 		Lang2: lang2.String(),
 	}).First(&entity); result.Error != nil {
@@ -128,8 +128,8 @@ func (r *azureTranslationRepository) FindByFirstLetter(ctx context.Context, lang
 	upper := strings.ToUpper(firstLetter) + "%"
 	lower := strings.ToLower(firstLetter) + "%"
 
-	entities := []azureTranslationEntity{}
-	if result := r.db.Where(&azureTranslationEntity{
+	entities := []azureTranslationDBEntity{}
+	if result := r.db.Where(&azureTranslationDBEntity{
 		Lang2: lang2.String(),
 	}).Where("text like ? OR text like ?", upper, lower).Find(&entities); result.Error != nil {
 		return nil, result.Error
@@ -182,9 +182,9 @@ func (r *azureTranslationRepository) FindByFirstLetter(ctx context.Context, lang
 // }
 
 func (r *azureTranslationRepository) Contain(ctx context.Context, lang2 domain.Lang2, text string) (bool, error) {
-	entity := azureTranslationEntity{}
+	entity := azureTranslationDBEntity{}
 
-	if result := r.db.Where(&azureTranslationEntity{
+	if result := r.db.Where(&azureTranslationDBEntity{
 		Text:  text,
 		Lang2: lang2.String(),
 	}).First(&entity); result.Error != nil {

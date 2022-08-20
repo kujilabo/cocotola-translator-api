@@ -1,10 +1,10 @@
 package entity
 
-type TranslationFindParameter struct {
+type TranslationFindParameterHTTPEntity struct {
 	Letter string `json:"letter"`
 }
 
-type Translation struct {
+type TranslationHTTPEntity struct {
 	Lang2      string `json:"lang2"`
 	Text       string `json:"text"`
 	Pos        int    `json:"pos"`
@@ -12,17 +12,17 @@ type Translation struct {
 	Provider   string `json:"provider"`
 }
 
-type TranslationFindResponse struct {
-	Results []Translation `json:"results"`
+type TranslationFindResponseHTTPEntity struct {
+	Results []TranslationHTTPEntity `json:"results"`
 }
 
-type TranslationAddParameter struct {
+type TranslationAddParameterHTTPEntity struct {
 	Lang2      string `json:"lang2" binding:"required"`
 	Text       string `json:"text" binding:"required"`
 	Pos        int    `json:"pos" binding:"required"`
 	Translated string `json:"translated" binding:"required"`
 }
 
-type TranslationUpdateParameter struct {
+type TranslationUpdateParameterHTTPEntity struct {
 	Translated string `json:"translated" binding:"required"`
 }

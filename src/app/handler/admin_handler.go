@@ -2,15 +2,16 @@ package handler
 
 import (
 	"bytes"
+	"context"
 	"encoding/csv"
 	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/kujilabo/cocotola-translator-api/src/app/domain"
-	"github.com/kujilabo/cocotola-translator-api/src/app/handler/converter"
 	"github.com/kujilabo/cocotola-translator-api/src/app/handler/entity"
 	handlerhelper "github.com/kujilabo/cocotola-translator-api/src/app/handler/helper"
+	"github.com/kujilabo/cocotola-translator-api/src/app/presenter"
 	"github.com/kujilabo/cocotola-translator-api/src/app/service"
 	"github.com/kujilabo/cocotola-translator-api/src/app/usecase"
 	"github.com/kujilabo/cocotola-translator-api/src/lib/ginhelper"
@@ -53,7 +54,7 @@ func (h *adminHandler) FindTranslationsByFirstLetter(c *gin.Context) {
 	logger.Infof("FindTranslations")
 
 	handlerhelper.HandleFunction(c, func() error {
-		param := entity.TranslationFindParameter{}
+		param := entity.TranslationFindParameterHTTPEntity{}
 		if err := c.ShouldBindJSON(&param); err != nil {
 			c.Status(http.StatusBadRequest)
 			return nil
@@ -64,13 +65,8 @@ func (h *adminHandler) FindTranslationsByFirstLetter(c *gin.Context) {
 			return err
 		}
 
-		response, err := converter.ToTranslationFindResposne(ctx, result)
-		if err != nil {
-			return err
-		}
-
-		c.JSON(http.StatusOK, response)
-		return nil
+		adminPresenter := presenter.NewAdminPresenter(c)
+		return adminPresenter.WriteTranslations(ctx, result)
 	}, h.errorHandle)
 }
 
@@ -109,12 +105,8 @@ func (h *adminHandler) FindTranslationByTextAndPos(c *gin.Context) {
 			return err
 		}
 
-		response, err := converter.ToTranslationResposne(ctx, result)
-		if err != nil {
-			return err
-		}
-
-		c.JSON(http.StatusOK, response)
+		adminPresenter := presenter.NewAdminPresenter(c)
+		adminPresenter.WriteTranslation(ctx, result)
 		return nil
 	}, h.errorHandle)
 }
@@ -141,12 +133,8 @@ func (h *adminHandler) FindTranslationsByText(c *gin.Context) {
 			return err
 		}
 
-		response, err := converter.ToTranslationFindResposne(ctx, results)
-		if err != nil {
-			return err
-		}
-
-		c.JSON(http.StatusOK, response)
+		adminPresenter := presenter.NewAdminPresenter(c)
+		adminPresenter.WriteTranslations(ctx, results)
 		return nil
 	}, h.errorHandle)
 }
@@ -155,12 +143,12 @@ func (h *adminHandler) AddTranslation(c *gin.Context) {
 	ctx := c.Request.Context()
 
 	handlerhelper.HandleFunction(c, func() error {
-		param := entity.TranslationAddParameter{}
+		param := entity.TranslationAddParameterHTTPEntity{}
 		if err := c.ShouldBindJSON(&param); err != nil {
 			c.Status(http.StatusBadRequest)
 			return nil
 		}
-		parameter, err := converter.ToTranslationAddParameter(ctx, &param)
+		parameter, err := h.toTranslationAddParameter(ctx, &param)
 		if err != nil {
 			return err
 		}
@@ -189,12 +177,12 @@ func (h *adminHandler) UpdateTranslation(c *gin.Context) {
 			return err
 		}
 
-		param := entity.TranslationUpdateParameter{}
+		param := entity.TranslationUpdateParameterHTTPEntity{}
 		if err := c.ShouldBindJSON(&param); err != nil {
 			c.Status(http.StatusBadRequest)
 			return nil
 		}
-		parameter, err := converter.ToTranslationUpdateParameter(ctx, &param)
+		parameter, err := h.toTranslationUpdateParameter(ctx, &param)
 		if err != nil {
 			return err
 		}
@@ -263,4 +251,21 @@ func (h *adminHandler) errorHandle(c *gin.Context, err error) bool {
 	}
 	logger.Errorf("adminHandler. err: %v", err)
 	return false
+}
+
+func (h *adminHandler) toTranslationAddParameter(ctx context.Context, param *entity.TranslationAddParameterHTTPEntity) (service.TranslationAddParameter, error) {
+	pos, err := domain.NewWordPos(param.Pos)
+	if err != nil {
+		return nil, err
+	}
+
+	lang2, err := domain.NewLang2(param.Lang2)
+	if err != nil {
+		return nil, err
+	}
+	return service.NewTransalationAddParameter(param.Text, pos, lang2, param.Translated)
+}
+
+func (h *adminHandler) toTranslationUpdateParameter(ctx context.Context, param *entity.TranslationUpdateParameterHTTPEntity) (service.TranslationUpdateParameter, error) {
+	return service.NewTransaltionUpdateParameter(param.Translated)
 }

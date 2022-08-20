@@ -1,0 +1,15 @@
+@startuml DictionaryLookup
+
+actor User
+boundary Client
+control "Translate a word" as DictionaryLookup
+' control "Translate a word by specifying the part of speech" as DiciotnaryLookupWithPos
+control "Return the result" as ReturnResponse
+entity "Translation result" as TranslationResult
+
+User -- Client
+Client --> DictionaryLookup
+DictionaryLookup --> ReturnResponse
+DictionaryLookup -- TranslationResult
+
+@enduml

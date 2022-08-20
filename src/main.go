@@ -45,7 +45,7 @@ import (
 	"github.com/kujilabo/cocotola-translator-api/src/app/gateway"
 	"github.com/kujilabo/cocotola-translator-api/src/app/handler"
 	"github.com/kujilabo/cocotola-translator-api/src/app/usecase"
-	"github.com/kujilabo/cocotola-translator-api/src/lib/handler/middleware"
+	"github.com/kujilabo/cocotola-translator-api/src/lib/ginmiddleware"
 	pb "github.com/kujilabo/cocotola-translator-api/src/proto"
 )
 
@@ -151,7 +151,7 @@ func httpServer(ctx context.Context, cfg *config.Config, db *gorm.DB, adminUseca
 	}
 
 	if cfg.Debug.Wait {
-		router.Use(middleware.NewWaitMiddleware())
+		router.Use(ginmiddleware.NewWaitMiddleware())
 	}
 
 	authMiddleware := gin.BasicAuth(gin.Accounts{
@@ -165,7 +165,7 @@ func httpServer(ctx context.Context, cfg *config.Config, db *gorm.DB, adminUseca
 	v1 := router.Group("v1")
 	{
 		v1.Use(otelgin.Middleware(cfg.App.Name))
-		v1.Use(middleware.NewTraceLogMiddleware(cfg.App.Name))
+		v1.Use(ginmiddleware.NewTraceLogMiddleware(cfg.App.Name))
 		v1.Use(authMiddleware)
 		{
 			admin := v1.Group("admin")
