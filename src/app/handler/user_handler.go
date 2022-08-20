@@ -57,7 +57,10 @@ func (h *userHandler) DictionaryLookup(c *gin.Context) {
 			}
 
 			userPresenter := presenter.NewUserPresenter(c)
-			userPresenter.WriteTranslations(ctx, results)
+			if err := userPresenter.WriteTranslations(ctx, results); err != nil {
+				return err
+			}
+
 			return nil
 		}
 
@@ -79,7 +82,10 @@ func (h *userHandler) DictionaryLookup(c *gin.Context) {
 		}
 
 		userPresenter := presenter.NewUserPresenter(c)
-		userPresenter.WriteTranslation(ctx, result)
+		if err := userPresenter.WriteTranslation(ctx, result); err != nil {
+			return err
+		}
+
 		return nil
 	}, h.errorHandle)
 }

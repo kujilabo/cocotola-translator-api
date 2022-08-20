@@ -106,7 +106,10 @@ func (h *adminHandler) FindTranslationByTextAndPos(c *gin.Context) {
 		}
 
 		adminPresenter := presenter.NewAdminPresenter(c)
-		adminPresenter.WriteTranslation(ctx, result)
+		if err := adminPresenter.WriteTranslation(ctx, result); err != nil {
+			return err
+		}
+
 		return nil
 	}, h.errorHandle)
 }
@@ -134,7 +137,10 @@ func (h *adminHandler) FindTranslationsByText(c *gin.Context) {
 		}
 
 		adminPresenter := presenter.NewAdminPresenter(c)
-		adminPresenter.WriteTranslations(ctx, results)
+		if err := adminPresenter.WriteTranslations(ctx, results); err != nil {
+			return err
+		}
+
 		return nil
 	}, h.errorHandle)
 }
