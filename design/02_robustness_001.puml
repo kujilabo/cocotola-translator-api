@@ -4,11 +4,15 @@ actor User
 boundary Client
 control "Translate a word" as DictionaryLookup
 ' control "Translate a word by specifying the part of speech" as DiciotnaryLookupWithPos
+control "Validate the parameter" as ValidateParameter
 control "Return the result" as ReturnResponse
+entity "Translation parameter" as TranslationParameter
 entity "Translation result" as TranslationResult
 
 User -- Client
-Client --> DictionaryLookup
+Client --> ValidateParameter : Call DicionaryLookup API
+ValidateParameter --> DictionaryLookup
+ValidateParameter -- TranslationParameter
 DictionaryLookup --> ReturnResponse
 DictionaryLookup -- TranslationResult
 
