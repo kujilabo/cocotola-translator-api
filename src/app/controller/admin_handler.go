@@ -2,16 +2,15 @@ package controller
 
 import (
 	"bytes"
-	"context"
 	"encoding/csv"
 	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/kujilabo/cocotola-translator-api/src/app/controller/converter"
 	"github.com/kujilabo/cocotola-translator-api/src/app/controller/entity"
 	handlerhelper "github.com/kujilabo/cocotola-translator-api/src/app/controller/helper"
 	"github.com/kujilabo/cocotola-translator-api/src/app/domain"
-	"github.com/kujilabo/cocotola-translator-api/src/app/presenter"
 	"github.com/kujilabo/cocotola-translator-api/src/app/service"
 	"github.com/kujilabo/cocotola-translator-api/src/app/usecase"
 	"github.com/kujilabo/cocotola-translator-api/src/lib/ginhelper"
@@ -60,13 +59,23 @@ func (h *adminHandler) FindTranslationsByFirstLetter(c *gin.Context) {
 			return nil
 		}
 
-		result, err := h.adminUsecase.FindTranslationsByFirstLetter(ctx, domain.Lang2JA, param.Letter)
+		if len(param.Letter) != 1 {
+			c.Status(http.StatusBadRequest)
+			return nil
+		}
+
+		results, err := h.adminUsecase.FindTranslationsByFirstLetter(ctx, domain.Lang2JA, param.Letter)
 		if err != nil {
 			return err
 		}
 
-		adminPresenter := presenter.NewAdminPresenter(c)
-		return adminPresenter.WriteTranslations(ctx, result)
+		response, err := converter.ToTranslationFindResposne(ctx, results)
+		if err != nil {
+			return err
+		}
+
+		c.JSON(http.StatusOK, response)
+		return nil
 	}, h.errorHandle)
 }
 
@@ -105,11 +114,12 @@ func (h *adminHandler) FindTranslationByTextAndPos(c *gin.Context) {
 			return err
 		}
 
-		adminPresenter := presenter.NewAdminPresenter(c)
-		if err := adminPresenter.WriteTranslation(ctx, result); err != nil {
+		response, err := converter.ToTranslationResposne(ctx, result)
+		if err != nil {
 			return err
 		}
 
+		c.JSON(http.StatusOK, response)
 		return nil
 	}, h.errorHandle)
 }
@@ -136,11 +146,12 @@ func (h *adminHandler) FindTranslationsByText(c *gin.Context) {
 			return err
 		}
 
-		adminPresenter := presenter.NewAdminPresenter(c)
-		if err := adminPresenter.WriteTranslations(ctx, results); err != nil {
+		response, err := converter.ToTranslationFindResposne(ctx, results)
+		if err != nil {
 			return err
 		}
 
+		c.JSON(http.StatusOK, response)
 		return nil
 	}, h.errorHandle)
 }
@@ -154,7 +165,7 @@ func (h *adminHandler) AddTranslation(c *gin.Context) {
 			c.Status(http.StatusBadRequest)
 			return nil
 		}
-		parameter, err := h.toTranslationAddParameter(ctx, &param)
+		parameter, err := converter.ToTranslationAddParameter(ctx, &param)
 		if err != nil {
 			return err
 		}
@@ -188,7 +199,7 @@ func (h *adminHandler) UpdateTranslation(c *gin.Context) {
 			c.Status(http.StatusBadRequest)
 			return nil
 		}
-		parameter, err := h.toTranslationUpdateParameter(ctx, &param)
+		parameter, err := converter.ToTranslationUpdateParameter(ctx, &param)
 		if err != nil {
 			return err
 		}
@@ -257,21 +268,4 @@ func (h *adminHandler) errorHandle(c *gin.Context, err error) bool {
 	}
 	logger.Errorf("adminHandler. err: %v", err)
 	return false
-}
-
-func (h *adminHandler) toTranslationAddParameter(ctx context.Context, param *entity.TranslationAddParameterHTTPEntity) (service.TranslationAddParameter, error) {
-	pos, err := domain.NewWordPos(param.Pos)
-	if err != nil {
-		return nil, err
-	}
-
-	lang2, err := domain.NewLang2(param.Lang2)
-	if err != nil {
-		return nil, err
-	}
-	return service.NewTransalationAddParameter(param.Text, pos, lang2, param.Translated)
-}
-
-func (h *adminHandler) toTranslationUpdateParameter(ctx context.Context, param *entity.TranslationUpdateParameterHTTPEntity) (service.TranslationUpdateParameter, error) {
-	return service.NewTransaltionUpdateParameter(param.Translated)
 }
