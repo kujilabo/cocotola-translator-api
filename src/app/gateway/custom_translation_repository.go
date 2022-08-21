@@ -20,7 +20,7 @@ type customTranslationRepository struct {
 	db *gorm.DB
 }
 
-type customTranslationEntity struct {
+type customTranslationDBEntity struct {
 	Version    int
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
@@ -30,11 +30,11 @@ type customTranslationEntity struct {
 	Translated string
 }
 
-func (e *customTranslationEntity) TableName() string {
+func (e *customTranslationDBEntity) TableName() string {
 	return "custom_translation"
 }
 
-func (e *customTranslationEntity) toModel() (domain.Translation, error) {
+func (e *customTranslationDBEntity) toModel() (domain.Translation, error) {
 	lang2, err := domain.NewLang2(e.Lang2)
 	if err != nil {
 		return nil, err
@@ -57,7 +57,7 @@ func (r *customTranslationRepository) Add(ctx context.Context, param service.Tra
 	_, span := tracer.Start(ctx, "customTranslationRepository.Add")
 	defer span.End()
 
-	entity := customTranslationEntity{
+	entity := customTranslationDBEntity{
 		Version:    1,
 		Text:       param.GetText(),
 		Lang2:      param.GetLang2().String(),
@@ -77,7 +77,7 @@ func (r *customTranslationRepository) Update(ctx context.Context, lang2 domain.L
 	_, span := tracer.Start(ctx, "customTranslationRepository.Update")
 	defer span.End()
 
-	result := r.db.Model(&customTranslationEntity{}).
+	result := r.db.Model(&customTranslationDBEntity{}).
 		Where("lang2 = ? and text = ? and pos = ?",
 			lang2.String(), text, int(pos)).
 		Updates(map[string]interface{}{
@@ -101,7 +101,7 @@ func (r *customTranslationRepository) Remove(ctx context.Context, lang2 domain.L
 	result := r.db.
 		Where("lang2 = ? and text = ? and pos = ?",
 			lang2.String(), text, int(pos)).
-		Delete(&customTranslationEntity{})
+		Delete(&customTranslationDBEntity{})
 	if result.Error != nil {
 		return result.Error
 	}
@@ -112,8 +112,8 @@ func (r *customTranslationRepository) FindByText(ctx context.Context, lang2 doma
 	_, span := tracer.Start(ctx, "customTranslationRepository.FindByText")
 	defer span.End()
 
-	entities := []customTranslationEntity{}
-	if result := r.db.Where(&customTranslationEntity{
+	entities := []customTranslationDBEntity{}
+	if result := r.db.Where(&customTranslationDBEntity{
 		Text:  text,
 		Lang2: lang2.String(),
 	}).Find(&entities); result.Error != nil {
@@ -136,8 +136,8 @@ func (r *customTranslationRepository) FindByTextAndPos(ctx context.Context, lang
 	_, span := tracer.Start(ctx, "customTranslationRepository.FindByTextAndPos")
 	defer span.End()
 
-	entity := customTranslationEntity{}
-	if result := r.db.Where(&customTranslationEntity{
+	entity := customTranslationDBEntity{}
+	if result := r.db.Where(&customTranslationDBEntity{
 		Text:  text,
 		Lang2: lang2.String(),
 		Pos:   int(pos),
@@ -170,8 +170,8 @@ func (r *customTranslationRepository) FindByFirstLetter(ctx context.Context, lan
 	upper := strings.ToUpper(firstLetter) + "%"
 	lower := strings.ToLower(firstLetter) + "%"
 
-	entities := []customTranslationEntity{}
-	if result := r.db.Where(&customTranslationEntity{
+	entities := []customTranslationDBEntity{}
+	if result := r.db.Where(&customTranslationDBEntity{
 		Lang2: lang2.String(),
 	}).Where("text like ? OR text like ?", upper, lower).Find(&entities); result.Error != nil {
 		return nil, result.Error
@@ -221,9 +221,9 @@ func (r *customTranslationRepository) Contain(ctx context.Context, lang2 domain.
 	_, span := tracer.Start(ctx, "customTranslationRepository.Contain")
 	defer span.End()
 
-	entity := azureTranslationEntity{}
+	entity := azureTranslationDBEntity{}
 
-	if result := r.db.Where(&azureTranslationEntity{
+	if result := r.db.Where(&azureTranslationDBEntity{
 		Text:  text,
 		Lang2: lang2.String(),
 	}).First(&entity); result.Error != nil {

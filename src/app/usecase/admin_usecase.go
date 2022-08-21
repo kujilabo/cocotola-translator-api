@@ -6,10 +6,11 @@ import (
 	"sort"
 	"strconv"
 
+	"golang.org/x/xerrors"
+
 	"github.com/kujilabo/cocotola-translator-api/src/app/domain"
 	"github.com/kujilabo/cocotola-translator-api/src/app/service"
 	"github.com/kujilabo/cocotola-translator-api/src/lib/log"
-	"golang.org/x/xerrors"
 )
 
 type AdminUsecase interface {
@@ -24,6 +25,11 @@ type AdminUsecase interface {
 	UpdateTranslation(ctx context.Context, lang2 domain.Lang2, text string, pos domain.WordPos, param service.TranslationUpdateParameter) error
 
 	RemoveTranslation(ctx context.Context, lang2 domain.Lang2, text string, pos domain.WordPos) error
+}
+
+type AdminPresenter interface {
+	WriteTranslations(ctx context.Context, translations []domain.Translation) error
+	WriteTranslation(ctx context.Context, translation domain.Translation) error
 }
 
 type adminUsecase struct {

@@ -7,8 +7,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/kujilabo/cocotola-translator-api/src/app/domain"
-	"github.com/kujilabo/cocotola-translator-api/src/app/handler/converter"
 	handlerhelper "github.com/kujilabo/cocotola-translator-api/src/app/handler/helper"
+	"github.com/kujilabo/cocotola-translator-api/src/app/presenter"
 	"github.com/kujilabo/cocotola-translator-api/src/app/service"
 	"github.com/kujilabo/cocotola-translator-api/src/app/usecase"
 	"github.com/kujilabo/cocotola-translator-api/src/lib/ginhelper"
@@ -42,7 +42,6 @@ func NewUserHandler(userUsecase usecase.UserUsecase) UserHandler {
 // @Security    BasicAuth
 func (h *userHandler) DictionaryLookup(c *gin.Context) {
 	ctx := c.Request.Context()
-	logger := log.FromContext(ctx)
 	handlerhelper.HandleFunction(c, func() error {
 		text := ginhelper.GetStringFromQuery(c, "text")
 		if len(text) <= 1 {
@@ -57,13 +56,11 @@ func (h *userHandler) DictionaryLookup(c *gin.Context) {
 				return err
 			}
 
-			response, err := converter.ToTranslationFindResposne(ctx, results)
-			if err != nil {
+			userPresenter := presenter.NewUserPresenter(c)
+			if err := userPresenter.WriteTranslations(ctx, results); err != nil {
 				return err
 			}
 
-			logger.Infof("response: %+v", response)
-			c.JSON(http.StatusOK, response)
 			return nil
 		}
 
@@ -84,13 +81,10 @@ func (h *userHandler) DictionaryLookup(c *gin.Context) {
 			return err
 		}
 
-		response, err := converter.ToTranslationFindResposne(ctx, []domain.Translation{result})
-		if err != nil {
+		userPresenter := presenter.NewUserPresenter(c)
+		if err := userPresenter.WriteTranslation(ctx, result); err != nil {
 			return err
 		}
-
-		logger.Infof("response: %+v", response)
-		c.JSON(http.StatusOK, response)
 
 		return nil
 	}, h.errorHandle)
