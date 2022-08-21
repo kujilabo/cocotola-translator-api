@@ -15,15 +15,11 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
 	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
-	ginlog "github.com/onrik/logrus/gin"
 	"github.com/sirupsen/logrus"
-	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 
 	"go.opentelemetry.io/otel"
@@ -45,7 +41,6 @@ import (
 	"github.com/kujilabo/cocotola-translator-api/src/app/gateway"
 	"github.com/kujilabo/cocotola-translator-api/src/app/handler"
 	"github.com/kujilabo/cocotola-translator-api/src/app/usecase"
-	"github.com/kujilabo/cocotola-translator-api/src/lib/ginmiddleware"
 	pb "github.com/kujilabo/cocotola-translator-api/src/proto"
 )
 
@@ -137,53 +132,7 @@ func httpServer(ctx context.Context, cfg *config.Config, db *gorm.DB, adminUseca
 		return err
 	}
 
-	if !cfg.Debug.GinMode {
-		gin.SetMode(gin.ReleaseMode)
-	}
-
-	// router
-	router := gin.New()
-	router.Use(cors.New(corsConfig))
-	router.Use(gin.Recovery())
-
-	if cfg.Debug.GinMode {
-		router.Use(ginlog.Middleware(ginlog.DefaultConfig))
-	}
-
-	if cfg.Debug.Wait {
-		router.Use(ginmiddleware.NewWaitMiddleware())
-	}
-
-	authMiddleware := gin.BasicAuth(gin.Accounts{
-		cfg.Auth.Username: cfg.Auth.Password,
-	})
-
-	router.GET("/healthcheck", func(c *gin.Context) {
-		c.Status(http.StatusOK)
-	})
-
-	v1 := router.Group("v1")
-	{
-		v1.Use(otelgin.Middleware(cfg.App.Name))
-		v1.Use(ginmiddleware.NewTraceLogMiddleware(cfg.App.Name))
-		v1.Use(authMiddleware)
-		{
-			admin := v1.Group("admin")
-			adminHandler := handler.NewAdminHandler(adminUsecase)
-			admin.POST("find", adminHandler.FindTranslationsByFirstLetter)
-			admin.GET("text/:text/pos/:pos", adminHandler.FindTranslationByTextAndPos)
-			admin.GET("text/:text", adminHandler.FindTranslationsByText)
-			admin.PUT("text/:text/pos/:pos", adminHandler.UpdateTranslation)
-			admin.DELETE("text/:text/pos/:pos", adminHandler.RemoveTranslation)
-			admin.POST("", adminHandler.AddTranslation)
-			admin.POST("export", adminHandler.ExportTranslations)
-		}
-		{
-			user := v1.Group("user")
-			userHandler := handler.NewUserHandler(userUsecase)
-			user.GET("dictionary/lookup", userHandler.DictionaryLookup)
-		}
-	}
+	router := handler.NewRouter(adminUsecase, userUsecase, corsConfig, cfg.App, cfg.Auth, cfg.Debug)
 
 	if cfg.Swagger.Enabled {
 		router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
