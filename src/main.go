@@ -6,7 +6,6 @@ import (
 	"encoding/base64"
 	"errors"
 	"flag"
-	"fmt"
 	"net"
 	"net/http"
 	"os"
@@ -26,7 +25,6 @@ import (
 	"go.opentelemetry.io/otel/propagation"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	"golang.org/x/sync/errgroup"
-	"golang.org/x/xerrors"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/reflection"
@@ -38,9 +36,10 @@ import (
 
 	"github.com/kujilabo/cocotola-translator-api/docs"
 	"github.com/kujilabo/cocotola-translator-api/src/app/config"
+	"github.com/kujilabo/cocotola-translator-api/src/app/controller"
 	"github.com/kujilabo/cocotola-translator-api/src/app/gateway"
-	"github.com/kujilabo/cocotola-translator-api/src/app/handler"
 	"github.com/kujilabo/cocotola-translator-api/src/app/usecase"
+	liberrors "github.com/kujilabo/cocotola-translator-api/src/lib/errors"
 	pb "github.com/kujilabo/cocotola-translator-api/src/proto"
 )
 
@@ -57,6 +56,8 @@ func main() {
 			*env = appEnv
 		}
 	}
+
+	// liberrors.UseFmtErrorf()
 
 	logrus.Infof("env: %s", *env)
 
@@ -119,7 +120,7 @@ func signalNotify(ctx context.Context) error {
 		signal.Reset()
 		return nil
 	case sig := <-sigs:
-		return fmt.Errorf("signal received: %v", sig.String())
+		return liberrors.Errorf("signal received: %v", sig.String())
 	}
 }
 
@@ -132,7 +133,7 @@ func httpServer(ctx context.Context, cfg *config.Config, db *gorm.DB, adminUseca
 		return err
 	}
 
-	router := handler.NewRouter(adminUsecase, userUsecase, corsConfig, cfg.App, cfg.Auth, cfg.Debug)
+	router := controller.NewRouter(adminUsecase, userUsecase, corsConfig, cfg.App, cfg.Auth, cfg.Debug)
 
 	if cfg.Swagger.Enabled {
 		router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
@@ -196,7 +197,7 @@ func grpcServer(ctx context.Context, cfg *config.Config, db *gorm.DB, adminUseca
 	)
 	reflection.Register(grpcServer)
 
-	userServer := handler.NewTranslatorUserServer(userUsecase)
+	userServer := controller.NewTranslatorUserServer(userUsecase)
 	pb.RegisterTranslatorUserServer(grpcServer, userServer)
 
 	logrus.Printf("grpc server listening at %v", lis.Addr())
@@ -222,7 +223,7 @@ func grpcServer(ctx context.Context, cfg *config.Config, db *gorm.DB, adminUseca
 func initialize(ctx context.Context, env string) (*config.Config, *gorm.DB, *sql.DB, *sdktrace.TracerProvider, error) {
 	cfg, err := config.LoadConfig(env)
 	if err != nil {
-		return nil, nil, nil, nil, err
+		return nil, nil, nil, nil, liberrors.Errorf("failed to config.LoadConfig in main.initialize. err: %w", err)
 	}
 
 	// log
@@ -233,7 +234,7 @@ func initialize(ctx context.Context, env string) (*config.Config, *gorm.DB, *sql
 	// tracer
 	tp, err := config.InitTracerProvider(cfg)
 	if err != nil {
-		return nil, nil, nil, nil, xerrors.Errorf("failed to InitTracerProvider. err: %w", err)
+		return nil, nil, nil, nil, liberrors.Errorf("failed to config.InitTracerProvider in main.initialize. err: %w", err)
 	}
 	otel.SetTracerProvider(tp)
 	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
@@ -241,7 +242,7 @@ func initialize(ctx context.Context, env string) (*config.Config, *gorm.DB, *sql
 	// db
 	db, sqlDB, err := config.InitDB(cfg.DB)
 	if err != nil {
-		return nil, nil, nil, nil, xerrors.Errorf("failed to InitDB. err: %w", err)
+		return nil, nil, nil, nil, liberrors.Errorf("failed to configInitDB in main.initialize. err: %w", err)
 	}
 
 	return cfg, db, sqlDB, tp, nil

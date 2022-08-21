@@ -8,10 +8,9 @@ import (
 	"strconv"
 	"time"
 
-	"golang.org/x/xerrors"
-
 	"github.com/kujilabo/cocotola-translator-api/src/app/domain"
 	"github.com/kujilabo/cocotola-translator-api/src/app/service"
+	liberrors "github.com/kujilabo/cocotola-translator-api/src/lib/errors"
 )
 
 type UserUsecase interface {
@@ -100,7 +99,7 @@ func (u *userUsecase) azureDictionaryLookup(ctx context.Context, fromLang, toLan
 	}
 
 	if err := azureRepo.Add(ctx, toLang, text, azureResults); err != nil {
-		return nil, xerrors.Errorf("failed to add auzre_translation. err: %w", err)
+		return nil, liberrors.Errorf("failed to add auzre_translation. err: %w", err)
 	}
 
 	return azureResults, nil

@@ -1,4 +1,4 @@
-package handler
+package controller
 
 import (
 	"bytes"
@@ -8,9 +8,9 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/kujilabo/cocotola-translator-api/src/app/controller/entity"
+	handlerhelper "github.com/kujilabo/cocotola-translator-api/src/app/controller/helper"
 	"github.com/kujilabo/cocotola-translator-api/src/app/domain"
-	"github.com/kujilabo/cocotola-translator-api/src/app/handler/entity"
-	handlerhelper "github.com/kujilabo/cocotola-translator-api/src/app/handler/helper"
 	"github.com/kujilabo/cocotola-translator-api/src/app/presenter"
 	"github.com/kujilabo/cocotola-translator-api/src/app/service"
 	"github.com/kujilabo/cocotola-translator-api/src/app/usecase"

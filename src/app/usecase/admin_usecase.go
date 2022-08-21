@@ -7,10 +7,9 @@ import (
 	"sort"
 	"strconv"
 
-	"golang.org/x/xerrors"
-
 	"github.com/kujilabo/cocotola-translator-api/src/app/domain"
 	"github.com/kujilabo/cocotola-translator-api/src/app/service"
+	liberrors "github.com/kujilabo/cocotola-translator-api/src/lib/errors"
 	"github.com/kujilabo/cocotola-translator-api/src/lib/log"
 )
 
@@ -176,7 +175,7 @@ func (u *adminUsecase) UpdateTranslation(ctx context.Context, lang2 domain.Lang2
 func (u *adminUsecase) RemoveTranslation(ctx context.Context, lang2 domain.Lang2, text string, pos domain.WordPos) error {
 	customRepo := u.rf.NewCustomTranslationRepository(ctx)
 	if err := customRepo.Remove(ctx, lang2, text, pos); err != nil {
-		return xerrors.Errorf("failed to customRepo.Remove. err: %w", err)
+		return liberrors.Errorf("failed to customRepo.Remove. err: %w", err)
 	}
 	return nil
 }

@@ -1,4 +1,4 @@
-package handler
+package controller
 
 import (
 	"errors"
@@ -6,11 +6,13 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+
+	handlerhelper "github.com/kujilabo/cocotola-translator-api/src/app/controller/helper"
 	"github.com/kujilabo/cocotola-translator-api/src/app/domain"
-	handlerhelper "github.com/kujilabo/cocotola-translator-api/src/app/handler/helper"
 	"github.com/kujilabo/cocotola-translator-api/src/app/presenter"
 	"github.com/kujilabo/cocotola-translator-api/src/app/service"
 	"github.com/kujilabo/cocotola-translator-api/src/app/usecase"
+	liberrors "github.com/kujilabo/cocotola-translator-api/src/lib/errors"
 	"github.com/kujilabo/cocotola-translator-api/src/lib/ginhelper"
 	"github.com/kujilabo/cocotola-translator-api/src/lib/log"
 )
@@ -53,7 +55,7 @@ func (h *userHandler) DictionaryLookup(c *gin.Context) {
 		if len(posS) == 0 {
 			results, err := h.userUsecase.DictionaryLookup(ctx, domain.Lang2EN, domain.Lang2JA, text)
 			if err != nil {
-				return err
+				return liberrors.Errorf("failed userUsecase.DictionaryLookup in userHandler.DictionaryLookup. err: %w", err)
 			}
 
 			userPresenter := presenter.NewUserPresenter(c)
@@ -99,6 +101,6 @@ func (h *userHandler) errorHandle(c *gin.Context, err error) bool {
 		c.JSON(http.StatusConflict, gin.H{"message": "Translation already exists"})
 		return true
 	}
-	logger.Errorf("userHandler. err: %v", err)
+	logger.Errorf("userHandler. err: %+v", err)
 	return false
 }
