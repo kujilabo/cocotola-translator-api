@@ -53,7 +53,7 @@ func parseExpr(t *testing.T, v string) jp.Expr {
 	return expr
 }
 
-func Test_adminHandler_FindTranslationsByFirstLetter(t *testing.T) {
+func Test_adminHandler_FindTranslationsByFirstLetter_OK(t *testing.T) {
 	// given
 	adminUsecase := new(usecase_mock.AdminUsecase)
 
@@ -66,6 +66,7 @@ func Test_adminHandler_FindTranslationsByFirstLetter(t *testing.T) {
 	r := initAdminRouter(adminUsecase, initCrosConfig())
 
 	// when
+	// - letter is 'a'
 	body, err := json.Marshal(gin.H{"letter": "a"})
 	require.NoError(t, err)
 
@@ -79,7 +80,7 @@ func Test_adminHandler_FindTranslationsByFirstLetter(t *testing.T) {
 	resultsExpr := parseExpr(t, "$.results[*]")
 	lang2Expr := parseExpr(t, "$.results[*].lang2")
 
-	// check the status code
+	// - check the status code
 	assert.Equal(t, http.StatusOK, w.Code)
 	jsonObj := parseJSON(t, w.Body)
 
@@ -88,4 +89,45 @@ func Test_adminHandler_FindTranslationsByFirstLetter(t *testing.T) {
 
 	lang2 := lang2Expr.Get(jsonObj)
 	assert.Equal(t, "ja", lang2[0].(string))
+}
+
+func Test_adminHandler_FindTranslationsByFirstLetter_LetterIsNothing(t *testing.T) {
+	// given
+	adminUsecase := new(usecase_mock.AdminUsecase)
+
+	apple, err := domain.NewTranslation(1, time.Now(), time.Now(), "apple", domain.PosNoun, domain.Lang2JA, "リンゴ", "mock")
+	require.NoError(t, err)
+	adminUsecase.On("FindTranslationsByFirstLetter", anythingOfContext, domain.Lang2JA, "a").Return([]domain.Translation{
+		apple,
+	}, nil)
+
+	r := initAdminRouter(adminUsecase, initCrosConfig())
+
+	// when
+	// - letter is nothing
+	body, err := json.Marshal(gin.H{})
+	require.NoError(t, err)
+
+	req, err := http.NewRequest(http.MethodPost, "/v1/admin/find", bytes.NewBuffer(body))
+	req.SetBasicAuth("user", "pass")
+	require.NoError(t, err)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	bytes, _ := io.ReadAll(w.Body)
+	t.Logf("resp: %s", string(bytes))
+
+	// then
+	// resultsExpr := parseExpr(t, "$.results[*]")
+	// lang2Expr := parseExpr(t, "$.results[*].lang2")
+
+	// - check the status code
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+	// jsonObj := parseJSON(t, w.Body)
+
+	// results := resultsExpr.Get(jsonObj)
+	// assert.Equal(t, 1, len(results))
+
+	// lang2 := lang2Expr.Get(jsonObj)
+	// assert.Equal(t, "ja", lang2[0].(string))
 }
