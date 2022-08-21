@@ -15,6 +15,7 @@ require (
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0
 	github.com/mattn/go-sqlite3 v1.14.15
+	github.com/ohler55/ojg v1.14.4
 	github.com/onrik/gorm-logrus v0.4.0
 	github.com/onrik/logrus v0.9.0
 	github.com/sirupsen/logrus v1.9.0
