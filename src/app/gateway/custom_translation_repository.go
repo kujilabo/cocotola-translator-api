@@ -7,12 +7,12 @@ import (
 	"strings"
 	"time"
 
-	"golang.org/x/xerrors"
 	"gorm.io/gorm"
 
 	"github.com/kujilabo/cocotola-translator-api/src/app/domain"
 	"github.com/kujilabo/cocotola-translator-api/src/app/service"
 	libD "github.com/kujilabo/cocotola-translator-api/src/lib/domain"
+	liberrors "github.com/kujilabo/cocotola-translator-api/src/lib/errors"
 	libG "github.com/kujilabo/cocotola-translator-api/src/lib/gateway"
 )
 
@@ -67,7 +67,7 @@ func (r *customTranslationRepository) Add(ctx context.Context, param service.Tra
 
 	if result := r.db.Create(&entity); result.Error != nil {
 		err := libG.ConvertDuplicatedError(result.Error, service.ErrTranslationAlreadyExists)
-		return xerrors.Errorf("failed to Add translation. err: %w", err)
+		return liberrors.Errorf("failed to Add translation. err: %w", err)
 	}
 
 	return nil

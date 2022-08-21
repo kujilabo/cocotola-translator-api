@@ -1,4 +1,4 @@
-package handler_test
+package controller_test
 
 import (
 	"bytes"
@@ -19,8 +19,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/kujilabo/cocotola-translator-api/src/app/config"
+	"github.com/kujilabo/cocotola-translator-api/src/app/controller"
 	"github.com/kujilabo/cocotola-translator-api/src/app/domain"
-	"github.com/kujilabo/cocotola-translator-api/src/app/handler"
 	"github.com/kujilabo/cocotola-translator-api/src/app/usecase"
 	usecase_mock "github.com/kujilabo/cocotola-translator-api/src/app/usecase/mock"
 )
@@ -36,7 +36,7 @@ func initCrosConfig() cors.Config {
 func initAdminRouter(adminUsecase usecase.AdminUsecase, corsConfig cors.Config) *gin.Engine {
 	userUsecase := new(usecase_mock.UserUsecase)
 
-	return handler.NewRouter(adminUsecase, userUsecase, corsConfig, &config.AppConfig{Name: "app"}, &config.AuthConfig{Username: "user", Password: "pass"}, &config.DebugConfig{GinMode: false})
+	return controller.NewRouter(adminUsecase, userUsecase, corsConfig, &config.AppConfig{Name: "app"}, &config.AuthConfig{Username: "user", Password: "pass"}, &config.DebugConfig{GinMode: false})
 }
 
 func parseJSON(t *testing.T, b *bytes.Buffer) interface{} {

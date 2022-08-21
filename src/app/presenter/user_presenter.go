@@ -6,8 +6,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"github.com/kujilabo/cocotola-translator-api/src/app/controller/entity"
 	"github.com/kujilabo/cocotola-translator-api/src/app/domain"
-	"github.com/kujilabo/cocotola-translator-api/src/app/handler/entity"
 	"github.com/kujilabo/cocotola-translator-api/src/app/usecase"
 	libD "github.com/kujilabo/cocotola-translator-api/src/lib/domain"
 )

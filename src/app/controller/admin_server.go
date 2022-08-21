@@ -1,4 +1,4 @@
-package handler
+package controller
 
 import (
 	pb "github.com/kujilabo/cocotola-translator-api/src/proto"
