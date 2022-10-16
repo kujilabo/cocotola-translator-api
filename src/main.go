@@ -9,9 +9,7 @@ import (
 	"net"
 	"net/http"
 	"os"
-	"os/signal"
 	"strconv"
-	"syscall"
 	"time"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
@@ -40,8 +38,11 @@ import (
 	"github.com/kujilabo/cocotola-translator-api/src/app/gateway"
 	"github.com/kujilabo/cocotola-translator-api/src/app/usecase"
 	liberrors "github.com/kujilabo/cocotola-translator-api/src/lib/errors"
+	libG "github.com/kujilabo/cocotola-translator-api/src/lib/gateway"
 	pb "github.com/kujilabo/cocotola-translator-api/src/proto"
 )
+
+const readHeaderTimeout = time.Duration(30) * time.Second
 
 // @securityDefinitions.basic BasicAuth
 func main() {
@@ -57,9 +58,9 @@ func main() {
 		}
 	}
 
-	// liberrors.UseFmtErrorf()
-
 	logrus.Infof("env: %s", *env)
+
+	liberrors.UseXerrorsErrorf()
 
 	cfg, db, sqlDB, tp, err := initialize(ctx, *env)
 	if err != nil {
@@ -96,7 +97,10 @@ func run(ctx context.Context, cfg *config.Config, db *gorm.DB, adminUsecase usec
 		return grpcServer(ctx, cfg, db, adminUsecase, userUsecase)
 	})
 	eg.Go(func() error {
-		return signalNotify(ctx)
+		return libG.MetricsServerProcess(ctx, cfg.App.MetricsPort, cfg.Shutdown.TimeSec1)
+	})
+	eg.Go(func() error {
+		return libG.SignalWatchProcess(ctx)
 	})
 	eg.Go(func() error {
 		<-ctx.Done()
@@ -108,20 +112,6 @@ func run(ctx context.Context, cfg *config.Config, db *gorm.DB, adminUsecase usec
 		return 1
 	}
 	return 0
-}
-
-func signalNotify(ctx context.Context) error {
-	sigs := make(chan os.Signal, 1)
-
-	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
-
-	select {
-	case <-ctx.Done():
-		signal.Reset()
-		return nil
-	case sig := <-sigs:
-		return liberrors.Errorf("signal received: %v", sig.String())
-	}
 }
 
 func httpServer(ctx context.Context, cfg *config.Config, db *gorm.DB, adminUsecase usecase.AdminUsecase, userUsecase usecase.UserUsecase) error {
@@ -144,8 +134,9 @@ func httpServer(ctx context.Context, cfg *config.Config, db *gorm.DB, adminUseca
 	}
 
 	httpServer := http.Server{
-		Addr:    ":" + strconv.Itoa(cfg.App.HTTPPort),
-		Handler: router,
+		Addr:              ":" + strconv.Itoa(cfg.App.HTTPPort),
+		Handler:           router,
+		ReadHeaderTimeout: readHeaderTimeout,
 	}
 
 	logrus.Printf("http server listening at %v", httpServer.Addr)
@@ -226,7 +217,7 @@ func initialize(ctx context.Context, env string) (*config.Config, *gorm.DB, *sql
 		return nil, nil, nil, nil, liberrors.Errorf("failed to config.LoadConfig in main.initialize. err: %w", err)
 	}
 
-	// log
+	// init log
 	if err := config.InitLog(env, cfg.Log); err != nil {
 		return nil, nil, nil, nil, err
 	}

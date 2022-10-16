@@ -3,6 +3,7 @@ app:
   name: cocotola-translator-api
   httpPort: 8180
   grpcPort: 50151
+  metricsPort: 8181
 db:
   # driverName: sqlite3
   # sqlite3:

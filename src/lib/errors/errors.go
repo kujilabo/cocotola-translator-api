@@ -6,16 +6,12 @@ import (
 	"golang.org/x/xerrors"
 )
 
-var ErrorfFunc = xerrors.Errorf
-
-func init() {
-
-}
+var Errorf = fmt.Errorf
 
 func UseFmtErrorf() {
-	ErrorfFunc = fmt.Errorf
+	Errorf = fmt.Errorf
 }
 
-func Errorf(format string, a ...interface{}) error {
-	return ErrorfFunc(format, a...)
+func UseXerrorsErrorf() {
+	Errorf = xerrors.Errorf
 }

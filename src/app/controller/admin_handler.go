@@ -13,7 +13,7 @@ import (
 	"github.com/kujilabo/cocotola-translator-api/src/app/domain"
 	"github.com/kujilabo/cocotola-translator-api/src/app/service"
 	"github.com/kujilabo/cocotola-translator-api/src/app/usecase"
-	"github.com/kujilabo/cocotola-translator-api/src/lib/ginhelper"
+	"github.com/kujilabo/cocotola-translator-api/src/lib/controller/helper"
 	"github.com/kujilabo/cocotola-translator-api/src/lib/log"
 )
 
@@ -98,9 +98,9 @@ func (h *adminHandler) FindTranslationByTextAndPos(c *gin.Context) {
 	logger.Infof("FindTranslationByTextAndPos")
 
 	handlerhelper.HandleFunction(c, func() error {
-		text := ginhelper.GetStringFromPath(c, "text")
+		text := helper.GetStringFromPath(c, "text")
 
-		pos, err := ginhelper.GetIntFromPath(c, "pos")
+		pos, err := helper.GetIntFromPath(c, "pos")
 		if err != nil {
 			return err
 		}
@@ -140,7 +140,7 @@ func (h *adminHandler) FindTranslationsByText(c *gin.Context) {
 	ctx := c.Request.Context()
 
 	handlerhelper.HandleFunction(c, func() error {
-		text := ginhelper.GetStringFromPath(c, "text")
+		text := helper.GetStringFromPath(c, "text")
 		results, err := h.adminUsecase.FindTranslationByText(ctx, domain.Lang2JA, text)
 		if err != nil {
 			return err
@@ -183,9 +183,9 @@ func (h *adminHandler) UpdateTranslation(c *gin.Context) {
 	ctx := c.Request.Context()
 
 	handlerhelper.HandleFunction(c, func() error {
-		text := ginhelper.GetStringFromPath(c, "text")
+		text := helper.GetStringFromPath(c, "text")
 
-		pos, err := ginhelper.GetIntFromPath(c, "pos")
+		pos, err := helper.GetIntFromPath(c, "pos")
 		if err != nil {
 			return err
 		}
@@ -217,9 +217,9 @@ func (h *adminHandler) RemoveTranslation(c *gin.Context) {
 	ctx := c.Request.Context()
 
 	handlerhelper.HandleFunction(c, func() error {
-		text := ginhelper.GetStringFromPath(c, "text")
+		text := helper.GetStringFromPath(c, "text")
 
-		pos, err := ginhelper.GetIntFromPath(c, "pos")
+		pos, err := helper.GetIntFromPath(c, "pos")
 		if err != nil {
 			return err
 		}

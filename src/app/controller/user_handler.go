@@ -12,8 +12,8 @@ import (
 	"github.com/kujilabo/cocotola-translator-api/src/app/domain"
 	"github.com/kujilabo/cocotola-translator-api/src/app/service"
 	"github.com/kujilabo/cocotola-translator-api/src/app/usecase"
+	"github.com/kujilabo/cocotola-translator-api/src/lib/controller/helper"
 	liberrors "github.com/kujilabo/cocotola-translator-api/src/lib/errors"
-	"github.com/kujilabo/cocotola-translator-api/src/lib/ginhelper"
 	"github.com/kujilabo/cocotola-translator-api/src/lib/log"
 )
 
@@ -45,13 +45,13 @@ func NewUserHandler(userUsecase usecase.UserUsecase) UserHandler {
 func (h *userHandler) DictionaryLookup(c *gin.Context) {
 	ctx := c.Request.Context()
 	handlerhelper.HandleFunction(c, func() error {
-		text := ginhelper.GetStringFromQuery(c, "text")
+		text := helper.GetStringFromQuery(c, "text")
 		if len(text) <= 1 {
 			c.Status(http.StatusBadRequest)
 			return nil
 		}
 
-		posS := ginhelper.GetStringFromQuery(c, "pos")
+		posS := helper.GetStringFromQuery(c, "pos")
 		if len(posS) == 0 {
 			results, err := h.userUsecase.DictionaryLookup(ctx, domain.Lang2EN, domain.Lang2JA, text)
 			if err != nil {

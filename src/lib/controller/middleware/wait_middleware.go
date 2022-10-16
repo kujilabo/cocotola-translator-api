@@ -1,4 +1,4 @@
-package ginmiddleware
+package middleware
 
 import (
 	"time"

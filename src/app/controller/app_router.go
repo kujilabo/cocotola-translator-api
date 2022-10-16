@@ -10,7 +10,7 @@ import (
 
 	"github.com/kujilabo/cocotola-translator-api/src/app/config"
 	"github.com/kujilabo/cocotola-translator-api/src/app/usecase"
-	"github.com/kujilabo/cocotola-translator-api/src/lib/ginmiddleware"
+	"github.com/kujilabo/cocotola-translator-api/src/lib/controller/middleware"
 )
 
 func NewRouter(adminUsecase usecase.AdminUsecase, userUsecase usecase.UserUsecase, corsConfig cors.Config, appConfig *config.AppConfig, authConfig *config.AuthConfig, debugConfig *config.DebugConfig) *gin.Engine {
@@ -27,7 +27,7 @@ func NewRouter(adminUsecase usecase.AdminUsecase, userUsecase usecase.UserUsecas
 	}
 
 	if debugConfig.Wait {
-		router.Use(ginmiddleware.NewWaitMiddleware())
+		router.Use(middleware.NewWaitMiddleware())
 	}
 
 	authMiddleware := gin.BasicAuth(gin.Accounts{
@@ -41,7 +41,7 @@ func NewRouter(adminUsecase usecase.AdminUsecase, userUsecase usecase.UserUsecas
 	v1 := router.Group("v1")
 	{
 		v1.Use(otelgin.Middleware(appConfig.Name))
-		v1.Use(ginmiddleware.NewTraceLogMiddleware(appConfig.Name))
+		v1.Use(middleware.NewTraceLogMiddleware(appConfig.Name))
 		v1.Use(authMiddleware)
 		{
 			admin := v1.Group("admin")

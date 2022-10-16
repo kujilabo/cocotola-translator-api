@@ -13,9 +13,10 @@ import (
 )
 
 type AppConfig struct {
-	Name     string `yaml:"name" validate:"required"`
-	HTTPPort int    `yaml:"httpPort" validate:"required"`
-	GRPCPort int    `yaml:"grpcPort" validate:"required"`
+	Name        string `yaml:"name" validate:"required"`
+	HTTPPort    int    `yaml:"httpPort" validate:"required"`
+	GRPCPort    int    `yaml:"grpcPort" validate:"required"`
+	MetricsPort int    `yaml:"metricsPort" validate:"required"`
 }
 
 type SQLite3Config struct {
